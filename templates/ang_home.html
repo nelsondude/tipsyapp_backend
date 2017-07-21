@@ -1,0 +1,26 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Client</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="{% static 'ang/favicon.ico' %}">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.9.4/jquery.fullpage.extensions.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.9.4/vendors/jquery.easings.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.9.4/vendors/scrolloverflow.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/2.9.4/jquery.fullpage.min.js"></script>
+  <link href="{% static 'ang/styles.bundle.css' %}" rel="stylesheet"/>
+</head>
+<body>
+<app-root>
+</app-root>
+<script type="text/javascript" src="{% static 'ang/inline.bundle.js' %}"></script>
+<script type="text/javascript" src="{% static 'ang/polyfills.bundle.js' %}"></script>
+<script type="text/javascript" src="{% static 'ang/vendor.bundle.js' %}"></script>
+<script type="text/javascript" src="{% static 'ang/main.bundle.js' %}"></script>
+</body>
+</html>
