@@ -13,11 +13,15 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
 from django.views.generic import TemplateView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^api/ingredients/',   include('cocktail.api.ingredients.urls',    namespace="api-ingredients")),
+    url(r'^api/drink/',         include('cocktail.api.drink.urls',          namespace="api-drink")),
+    url(r'^api/webpage_url/',   include('cocktail.api.webpage_url.urls',    namespace="api-webpage_url")),
+    url(r'^api/accounts/',      include('accounts.api.urls',                namespace="api-accounts")),
     url(r'^.*', TemplateView.as_view(template_name="ang_home.html"), name='index')
 ]
