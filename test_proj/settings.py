@@ -26,6 +26,7 @@ SECRET_KEY = "k9gf6za2z46_yyy@7c01z6!78pq%srt!=7)l9!td-95-4_lbfa"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
+DEBUG = False
 
 # Application definition
 
@@ -148,7 +149,7 @@ CELERY_TIMEZONE = TIME_ZONE
 
 CELERY_BROKER_URL = os.environ['REDIS_URL']
 CELERY_RESULT_BACKEND = os.environ['REDIS_URL']
-DEBUG = False
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
