@@ -39,7 +39,7 @@ class LoginAPIView(APIView):
 class UserAPIView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
 
 
 

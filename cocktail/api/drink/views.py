@@ -56,7 +56,7 @@ class DrinkDetailAPIView(UpdateModelMixin, RetrieveAPIView):
 class DrinkListAPIView(ListAPIView):
     serializer_class = DrinkListModelSerializer
     pagination_class = LargeResultsSetPagination
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     ordering_fields = ('count_need', 'timestamp', )
 
     def get_queryset(self, *args, **kwargs):

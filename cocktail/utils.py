@@ -21,7 +21,6 @@ def myDeepCopy(a):
         return copy.copy(a)
 
 
-
 def print_json(recipe):
     print(json.dumps(recipe, sort_keys=True, indent=4, separators=(',', ': ')))
 
@@ -183,7 +182,7 @@ def score_chunks(chunks):
 
             line = obj.line
             words += len(obj.line.split(" "))
-            score += obj.proper_nouns * 3 #weight for properNOUN
+            score += obj.proper_nouns * 3 #weight for properNOUNd
             score += obj.num_key_words * 15 #weight for keywords
             if obj.contain_title: score += 30 #weight for Title
             if obj.banned: #if any banned words, score is 0
