@@ -61,7 +61,7 @@ class DrinkDetailModelSerializer(serializers.ModelSerializer):
             'rating',
             'playlists',
             'url',
-            'user'
+            'user',
         ]
 
     def get_playlists(self, obj):
@@ -96,8 +96,7 @@ class DrinkListModelSerializer(serializers.ModelSerializer):
             'name',
             'count_need',
             'thumbnail',
-            'url',
-
+            'url'
         ]
 
     def get_count_need(self, obj):

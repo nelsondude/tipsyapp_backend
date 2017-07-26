@@ -6,10 +6,14 @@ from rest_framework.permissions import IsAdminUser
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 
+from django_filters.rest_framework import DjangoFilterBackend
+
+from django.db.models import Count, Subquery, OuterRef, F, Func
+
 from cocktail.api.pagination import (
     LargeResultsSetPagination
 )
-from cocktail.models import Drink, Playlist
+from cocktail.models import Drink, Playlist, Ingredient
 from .serializers import (
     DrinkListModelSerializer,
     DrinkDetailModelSerializer,
@@ -56,8 +60,7 @@ class DrinkDetailAPIView(UpdateModelMixin, RetrieveAPIView):
 class DrinkListAPIView(ListAPIView):
     serializer_class = DrinkListModelSerializer
     pagination_class = LargeResultsSetPagination
-    # permission_classes = [AllowAny]
-    ordering_fields = ('count_need', 'timestamp', )
+    permission_classes = [AllowAny]
 
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
@@ -73,12 +76,4 @@ class DrinkListAPIView(ListAPIView):
                 qs = qs | Drink.objects.filter(playlist__name__iexact=filter)
         elif userQuery and user.is_authenticated():
             qs = qs.filter(user=user)
-            print(qs)
-
         return qs.order_by('-timestamp')
-
-#
-# class PossibleDrinksAPIView(ListAPIView):
-#     serializer_class = DrinkListModelSerializer
-#     pagination_class = LargeResultsSetPagination
-#     queryset = Drink.objects.all().order_by('-timestamp')

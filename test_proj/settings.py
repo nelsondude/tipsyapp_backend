@@ -26,7 +26,7 @@ SECRET_KEY = "k9gf6za2z46_yyy@7c01z6!78pq%srt!=7)l9!td-95-4_lbfa"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = False
+DEBUG = True
 
 SITE_ID=1
 
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_celery_beat',
     'django_celery_results',
+    'django_filters',
 
     # All Auth
     # 'allauth',
