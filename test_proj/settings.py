@@ -241,6 +241,7 @@ CELERY_TIMEZONE = TIME_ZONE
 try:
     CELERY_BROKER_URL = os.environ['REDIS_URL']
     CELERY_RESULT_BACKEND = os.environ['REDIS_URL']
+    DEBUG = False
 except:
     pass
 
@@ -294,12 +295,3 @@ JWT_AUTH = {
     'JWT_AUTH_COOKIE': None,
 
 }
-
-'''
-SOCIAL_AUTH_FACEBOOK_KEY = '305106739950693'
-SOCIAL_AUTH_FACEBOOK_SECRET = '7493acfb4f03e9ffeea382d0f4645cb3'
-EAAEVfjLadGUBAEddZC0knJrvUYA9NfRZCC2k9izzN81IzujRFaP1cQEQrTH00dXZCXQj1LIma3wVwZAl6oW26E
-
-curl -X POST -d "grant_type=convert_token&client_id=305106739950693&client_secret=7493acfb4f03e9ffeea382d0f4645cb3&backend=facebook&token=EAAEVfjLadGUBAEddZC0knJrvUYA9NfRZCC2k9izzN81IzujRFaP1cQEQrTH00dXZCXQj1LIma3wVwZAl6oW26E" http://localhost:8000/auth/convert-token
-
-'''
