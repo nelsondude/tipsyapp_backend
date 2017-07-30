@@ -4,6 +4,8 @@ from django.conf import settings
 from django.utils.text import slugify
 from django.db.models.signals import pre_save
 from django.contrib.auth import get_user_model
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 User = get_user_model()
 
@@ -30,6 +32,7 @@ class Playlist(models.Model):
     name = models.CharField(max_length=1000)
     thumbnail = models.URLField()
     playlist_id = models.CharField(max_length=1000)
+    webpage_urls = models.ManyToManyField(WebpageURL, blank=True)
 
 
     def __str__(self):
@@ -72,22 +75,11 @@ class Amount(models.Model):
 
 
     def __str__(self):
-        return str(self.amount) + " | " + str(self.ingredient)
+        return str(self.layer.layer)+' | '+str(self.amount) + " | " + str(self.ingredient)
 
 
 # ________________________________________________________________
 # Drink Model
-
-class DrinkManager(models.Manager):
-    def get_count_need(self, user, obj):
-        ingredient_qs = obj.ingredients.all()
-        user = self.context['request'].user
-        user_qs = User.objects.filter(username=user.username)
-        if user_qs.exists() and user_qs.count() == 1:
-            user_obj = user_qs.first()
-            qs = user_obj.ingredient_set.all()
-            return ingredient_qs.count() - (qs & ingredient_qs).count()
-        return 0
 
 class Drink(models.Model):
     name                = models.CharField(max_length = 1000, null=True, blank=True)
@@ -98,10 +90,10 @@ class Drink(models.Model):
     slug                = models.SlugField(max_length=255, unique=True)
     timestamp           = models.DateTimeField(null=True, blank=True)
     rating              = models.FloatField(default=5)
+
+    # User saved drinks
     user                = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True)
     playlist            = models.ManyToManyField(Playlist, blank=True)
-
-    # To Change: Drink has layers which have amount ingredients
 
     def __str__(self):
         return self.name
@@ -113,10 +105,41 @@ class Drink(models.Model):
     def get_api_url(self):
         return reverse("api:drink-api:detail", kwargs={"slug": self.slug})
 
+class IngredientsUserNeeds(models.Model):
+    user = models.ForeignKey(User, blank=True, null=True)
+    count_need = models.IntegerField(default=0)
+    # All Possible drinks
+    drinks = models.ManyToManyField(Drink)
+
     class Meta:
-        ordering = ['id']
+        ordering = ['count_need']
+
+    def __str__(self):
+        return '%s | %s' % (self.user.username, self.drinks.all().count())
 
 
+# _____________________________________________________________
+# Account Profile Extra Information
+
+
+class Profile(models.Model):
+    user            = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio             = models.TextField(max_length=500, blank=True)
+    location        = models.CharField(max_length=30, blank=True)
+    birth_date      = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
 
 # ________________________________________________________________
 # Slug Creater for Drink and Ingredients Below
@@ -138,5 +161,4 @@ def pre_save_post_receiver(sender, instance, *args, **kwargs):
 
 pre_save.connect(pre_save_post_receiver, sender=Drink)
 pre_save.connect(pre_save_post_receiver, sender=Ingredient)
-
 

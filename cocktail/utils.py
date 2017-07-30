@@ -9,9 +9,14 @@ import requests
 import datetime
 
 from nltk import word_tokenize
-from langdetect import detect
 
-from .models import Drink
+import langid
+langid.set_languages(['en', 'es'])
+
+import re
+regex = re.compile('[%s]' % re.escape(string.punctuation))
+
+from .models import Drink, Playlist
 
 
 def myDeepCopy(a):
@@ -35,7 +40,7 @@ class DescriptionLineDetails(object):
         self.is_layer       = is_layer
 
 def seperate_amount_from_ingredient(line):
-    key_words = "of ) cup dashes drops cups oz oz. ml ml. pack with teaspoon tsp tablespoon tbsp part bottle bottles gal. gallon pint dash pinch splash".split(" ")
+    key_words = "or : of ) cup cups dash dashes drop drops oz ozs oz. ml mls ml. pack with teaspoon tsp tablespoon tablespoons teaspoons tbsp part parts bottle bottles gal. gallon gallons pint pints pinch pinches splash splashes".split(" ")
     latest_index = 0
     words = line.split(" ")
     for i in range(len(words)):
@@ -47,6 +52,8 @@ def seperate_amount_from_ingredient(line):
 
     amount = " ".join(words[:latest_index])
     ingredient = " ".join(words[latest_index:])
+    if ingredient.lower().startswith('blue cura'):
+        ingredient = 'Blue Curacao'
     result = [amount, ingredient.strip()]
 
     return result
@@ -73,7 +80,6 @@ def get_ingredients_from_description(description, title):
     for i in range(len(detailed_info)):
         chunk, score, layer = detailed_info[i]
 
-        lang = ""
         if score > 2:
             current_layer = {
                                 "layer_title": layer,
@@ -81,15 +87,16 @@ def get_ingredients_from_description(description, title):
                             }
             for j in range(len(chunk)):
                 obj = chunk[j]
-                if j == 0 and "layer" not in obj.line.lower():
+                if j == 0 and not obj.is_layer:
                     title = obj.line.title()
-                    lang = detect(obj.line.title())
 
-                if j != 0 and "layer" not in obj.line.lower():
+
+                if j != 0 and not obj.is_layer:
                     line = myDeepCopy(seperate_amount_from_ingredient(obj.line))
                     if len(line[1])>0 and "=" not in line[1]:
                         current_layer["ingredients"].append(line)
 
+            title = regex.sub('', title)
             if len(recipe['title'])==0:
                 recipe['title'] = title
 
@@ -123,13 +130,18 @@ def get_description_chunks(description, title):
     banned_words = "find instagram angeles @ http contact email vlog channel outtakes preparation"
     for line in description.splitlines():
 
+        line = line.strip()
+
         contain_title = True if title.lower() in line.lower() else False
         text          = word_tokenize(line)
         tagged        = nltk.pos_tag(text)
         proper_nouns  = 0
         num_key_words = 0
         banned        = False
-        is_layer      = True if "layer" in line.lower() else False
+        is_layer      = False
+
+        if 'layer' in line.lower() or (not line.isupper() and line.endswith(':')):
+            is_layer = True
 
         for word, tag in tagged:
             if tag.startswith("NN"): proper_nouns += 1
@@ -168,19 +180,17 @@ def score_chunks(chunks):
         score = 0
         words = 0
         # title = ""
+        all_lines = ""
 
         for obj in chunk:
             if len(obj.line.strip()) == 0: #remove all empty lines in a chunk
                 chunk.remove(obj)
                 continue
+            all_lines = all_lines + obj.line + ' \n'
 
             if obj.is_layer:
                 layer = obj.line
 
-            # if i == 0 and "layer" not in obj.line.lower():
-            #     title = obj.line.title()
-
-            line = obj.line
             words += len(obj.line.split(" "))
             score += obj.proper_nouns * 3 #weight for properNOUNd
             score += obj.num_key_words * 15 #weight for keywords
@@ -191,6 +201,11 @@ def score_chunks(chunks):
 
         if words > 0 and score > 0: score = score/words #score per word
         if len(chunk) < 2: score = 0
+
+        if score > 0 and len(all_lines) > 0:
+            lang, lang_score = langid.classify(all_lines)
+            if lang == 'es':
+                score = 0
 
         detailed_info.append([chunk, score, layer])
 
@@ -247,7 +262,10 @@ def get_playlists_from_channel(id, nextPageToken=None, playlists=None):
 
 
 def get_all_videos_in_playlist(playlist, nextPageToken=None, videos=None):
-    if not videos: videos = []
+    if not videos:
+        videos = []
+
+
     url = "https://www.googleapis.com/youtube/v3/playlistItems"
     publishedAfter = '1970-01-01T00:00:00Z'
     qs = Drink.objects.all().order_by('-timestamp')
@@ -266,6 +284,18 @@ def get_all_videos_in_playlist(playlist, nextPageToken=None, videos=None):
         values['pageToken'] = nextPageToken
 
     data = get_json(url, values)
+
+    # Prevent Playlists from fetching data if no new videos have been added
+    count = data['pageInfo']['totalResults']
+    qs = Playlist.objects.all().filter(playlist_id=playlist['id'])
+    if qs.exists() and qs.count() == 1 and videos == []:
+        obj = qs.first()
+        qs_count = obj.webpage_urls.all().count()
+        print(qs_count, count)
+        if qs_count == count:
+            return videos
+
+    # Recursive function to go through all pages until the end
     nextPageToken = data.get('nextPageToken')
     for item in data['items']:
         title = item['snippet']['title']
@@ -281,7 +311,6 @@ def get_all_videos_in_playlist(playlist, nextPageToken=None, videos=None):
                 thumbnail = item['snippet']['thumbnails']['default']['url']
             except:
                 thumbnail = ""
-
 
         data = {
             'webpage_url': youtube_link,

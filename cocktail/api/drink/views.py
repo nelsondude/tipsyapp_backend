@@ -6,21 +6,19 @@ from rest_framework.permissions import IsAdminUser
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 
-from django_filters.rest_framework import DjangoFilterBackend
-
-from django.db.models import Count, Subquery, OuterRef, F, Func
-
 from cocktail.api.pagination import (
-    LargeResultsSetPagination
+    LargeResultsSetPagination,
+    StandardResultsSetPagination
 )
-from cocktail.models import Drink, Playlist, Ingredient
+from cocktail.models import Drink, Playlist, IngredientsUserNeeds
 from .serializers import (
     DrinkListModelSerializer,
     DrinkDetailModelSerializer,
-    PlaylistModelSerializer
+    PlaylistModelSerializer,
+    DrinkCCListSerializer
 )
 
-from cocktail.tasks import process_youtube_videos
+from cocktail.tasks import process_youtube_videos, update_drink_counts
 
 User = get_user_model()
 
@@ -34,7 +32,7 @@ class UpdateDatabaseAPIView(APIView):
 class PlaylistListAPIView(ListAPIView):
     serializer_class = PlaylistModelSerializer
     permission_classes = [AllowAny]
-    queryset = Playlist.objects.all()
+    queryset = Playlist.objects.all().order_by('name')
     pagination_class = LargeResultsSetPagination
 
 
@@ -59,21 +57,71 @@ class DrinkDetailAPIView(UpdateModelMixin, RetrieveAPIView):
 
 class DrinkListAPIView(ListAPIView):
     serializer_class = DrinkListModelSerializer
-    pagination_class = LargeResultsSetPagination
-    permission_classes = [AllowAny]
+    pagination_class = StandardResultsSetPagination
+    # permission_classes = [AllowAny]
 
     def get_queryset(self, *args, **kwargs):
-        user = self.request.user
+        user        = self.request.user
+        userQuery   = self.request.GET.get('user')
+        query       = self.request.GET.get("q")
+        filters     = self.request.GET.getlist('filter')
+        order       = self.request.GET.get('ordering')
+        if not IngredientsUserNeeds.objects.all().filter(user=user).exists():
+            update_drink_counts(user)
+
         qs = Drink.objects.all()
-        userQuery = self.request.GET.get('user')
-        query = self.request.GET.get("q")
-        filters = self.request.GET.getlist('filter')
         if query:
             qs = qs.filter(name__icontains=query)
         elif filters:
+            print(filters)
             qs = qs.filter(playlist__name__iexact=filters[0])
             for filter in filters[1:]:
-                qs = qs | Drink.objects.filter(playlist__name__iexact=filter)
+                qs = qs | Drink.objects.filter(
+                    playlist__name__iexact=filter)
         elif userQuery and user.is_authenticated():
             qs = qs.filter(user=user)
-        return qs.order_by('-timestamp')
+
+        if order:
+            if order == 'timestamp':
+                qs = qs.order_by('-timestamp').distinct()
+            else:
+                qs = sorted(qs.distinct(),
+                                   key= lambda obj:
+                                   obj.ingredientsuserneeds_set
+                                   .all()
+                                   .filter(user=user)
+                                   .first()
+                                   .count_need
+                                   )
+        return qs
+
+
+
+class DrinkCountsAPIView(ListAPIView):
+    serializer_class = DrinkCCListSerializer
+    pagination_class = LargeResultsSetPagination
+
+    def get_queryset(self, *args, **kwargs):
+        user = self.request.user
+        userQuery = self.request.GET.get('user')
+        query = self.request.GET.get("q")
+        filters = self.request.GET.getlist('filter')
+        order = self.request.GET.get('ordering')
+
+        qs = IngredientsUserNeeds.objects.all().filter(user=user)
+        if query:
+            qs = qs.filter(drinks__name__icontains=query)
+        elif filters:
+            print(filters)
+            qs = qs.filter(drinks__playlist__name__iexact=filters[0])
+            for filter in filters[1:]:
+                qs = qs | IngredientsUserNeeds.objects.filter(
+                    drinks__playlist__name__iexact=filter)
+        elif userQuery and user.is_authenticated():
+            qs = qs.filter(drinks__user=user)
+            for obj in qs:
+                sub_qs = obj.drinks.all()
+                new_qs = sub_qs.filter(user=user)
+                obj.drinks = new_qs
+
+        return qs.distinct()

@@ -22,7 +22,6 @@ class RegisterAPIView(CreateAPIView):
     queryset = User.objects.all()
     permission_classes = [AllowAny]
 
-
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer

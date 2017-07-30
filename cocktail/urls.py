@@ -1,6 +1,3 @@
-
-
-
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.views.generic.base import RedirectView
@@ -16,8 +13,6 @@ from .views import (
     DrinkBuilderView,
     delete_all_view,
     )
-
-
 
 
 urlpatterns = [

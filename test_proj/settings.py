@@ -52,12 +52,6 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_filters',
 
-    # All Auth
-    # 'allauth',
-    # 'allauth.account',
-    # 'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.facebook',
-
     # RestFramework OAuth
     'oauth2_provider',
     'social_django',
@@ -114,45 +108,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
-# DJANGO ALLAUTH
-
-# AUTHENTICATION_BACKENDS = (
-#     'allauth.account.auth_backends.AuthenticationBackend',
-#     'django.contrib.auth.backends.ModelBackend',
-# )
-
-
-# SOCIALACCOUNT_PROVIDERS = \
-#     {'facebook':
-#        {'METHOD': 'oauth2',
-#         'SCOPE': ['email','public_profile', 'user_friends'],
-#         'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
-#         'FIELDS': [
-#             'id',
-#             'email',
-#             'name',
-#             'first_name',
-#             'last_name',
-#             'verified',
-#             'locale',
-#             'timezone',
-#             'link',
-#             'gender',
-#             'updated_time'],
-#         'EXCHANGE_TOKEN': True,
-#         'LOCALE_FUNC': lambda request: 'kr_KR',
-#         'VERIFIED_EMAIL': False,
-#         'VERSION': 'v2.4'}}
-
-#facebook
-# SOCIAL_AUTH_FACEBOOK_KEY = '305106739950693'  # App ID
-# SOCIAL_AUTH_FACEBOOK_SECRET ='7493acfb4f03e9ffeea382d0f4645cb3' #app key
-
-# LOGIN_REDIRECT_URL = "/"
-
-# ACCOUNT_EMAIL_REQUIRED=True
-# ACCOUNT_USERNAME_REQURIED=True
 
 
 AUTHENTICATION_BACKENDS = (
@@ -247,6 +202,9 @@ except:
 
 
 REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,
+
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),

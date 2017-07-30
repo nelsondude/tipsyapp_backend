@@ -6,21 +6,22 @@ from .utils import (
     print_json
 )
 
-from .tasks import process_youtube_videos
+from .tasks import process_youtube_videos, update_all_drinks
 from .models import *
 from django.db.models import *
 
 
 class UtilsTest(TestCase):
-    def test_query(self):
-        qs = Drink.objects.all()
-        qs1 = qs.annotate(count=F('ingredients'))
-        for obj in qs1:
-            print(obj.count)
+    # def test_query(self):
+    #     qs = Drink.objects.all()
+    #     qs1 = qs.annotate(count=F('ingredients'))
+    #     for obj in qs1:
+    #         print(obj.count)
 
 
-    # def test_youtube_api(self):
-    #     process_youtube_videos.delay()
+    def test_youtube_api(self):
+        # update_all_drinks()
+        process_youtube_videos.delay()
 
 
 

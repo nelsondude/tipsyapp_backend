@@ -1,5 +1,6 @@
 from rest_framework import generics
 from rest_framework import permissions
+from rest_framework import serializers
 from rest_framework.serializers import (
     CharField,
     EmailField,
@@ -23,6 +24,7 @@ class UserSerializer(ModelSerializer):
             'password',
             'email',
         ]
+
 
 
 class RegisterSerializer(ModelSerializer):

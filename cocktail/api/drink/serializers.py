@@ -1,8 +1,10 @@
-from rest_framework import serializers
-from django.contrib.auth import get_user_model
+from rest_framework import serializers, pagination
 from rest_framework.relations import HyperlinkedIdentityField
 
-from cocktail.models import Drink, Amount, WebpageURL, Playlist
+from django.core.paginator import Paginator
+from django.contrib.auth import get_user_model
+
+from cocktail.models import Drink, Amount, WebpageURL, Playlist, IngredientsUserNeeds
 
 import urllib.parse as urlparse
 
@@ -86,26 +88,38 @@ class DrinkDetailModelSerializer(serializers.ModelSerializer):
             return ingredient_qs.count() - (qs & ingredient_qs).count()
         return 0
 
-class DrinkListModelSerializer(serializers.ModelSerializer):
-    count_need = serializers.SerializerMethodField()
-    url = drink_detail_url
 
+class DrinkListModelSerializer(serializers.ModelSerializer):
+    url = drink_detail_url
+    count_need = serializers.SerializerMethodField()
     class Meta:
         model = Drink
         fields = [
             'name',
-            'count_need',
             'thumbnail',
-            'url'
+            'url',
+            'count_need',
+            'slug'
         ]
-
     def get_count_need(self, obj):
-        ingredient_qs = obj.ingredients.all()
-        user = self.context['request'].user
-        user_qs = User.objects.filter(username=user.username)
-        if user_qs.exists() and user_qs.count() == 1:
-            user_obj = user_qs.first()
-            qs = user_obj.ingredient_set.all()
-            return ingredient_qs.count() - (qs & ingredient_qs).count()
-        return 0
+        count_obj = obj.ingredientsuserneeds_set.all().filter(user=self.context['request'].user).first()
+        if count_obj:
+            return count_obj.count_need
+        return obj.ingredients.all().count()
 
+
+class DrinkCCListSerializer(serializers.HyperlinkedModelSerializer):
+    drinks = serializers.SerializerMethodField('paginated_drinks')
+    class Meta:
+        model = IngredientsUserNeeds
+        fields = [
+            'count_need',
+            'user',
+            'drinks'
+        ]
+    def paginated_drinks(self, obj):
+        drinks = Drink.objects.filter(ingredientsuserneeds=obj)
+        paginator = pagination.PageNumberPagination()
+        page = paginator.paginate_queryset(drinks, self.context['request'])
+        serializer = DrinkListModelSerializer(page, many=True, context={'request': self.context['request']})
+        return serializer.data

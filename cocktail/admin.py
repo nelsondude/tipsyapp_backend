@@ -8,7 +8,9 @@ from .models import (
     Drink,
     WebpageURL,
     Amount,
-    Playlist
+    Playlist,
+    Profile,
+    IngredientsUserNeeds
     )
 
 admin.site.register(Category)
@@ -17,3 +19,5 @@ admin.site.register(Drink)
 admin.site.register(WebpageURL)
 admin.site.register(Amount)
 admin.site.register(Playlist)
+admin.site.register(Profile)
+admin.site.register(IngredientsUserNeeds)
