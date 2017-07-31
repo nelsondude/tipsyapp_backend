@@ -20,7 +20,6 @@ class UtilsTest(TestCase):
 
 
     def test_youtube_api(self):
-        # update_all_drinks()
         process_youtube_videos.delay()
 
 

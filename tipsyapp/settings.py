@@ -74,7 +74,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'test_proj.urls'
+ROOT_URLCONF = 'tipsyapp.urls'
 
 TEMPLATES = [
     {
@@ -96,7 +96,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'test_proj.wsgi.application'
+WSGI_APPLICATION = 'tipsyapp.wsgi.application'
 
 
 # Database
@@ -196,7 +196,7 @@ CELERY_TIMEZONE = TIME_ZONE
 try:
     CELERY_BROKER_URL = os.environ['REDIS_URL']
     CELERY_RESULT_BACKEND = os.environ['REDIS_URL']
-    # DEBUG = False
+    DEBUG = False
 except:
     pass
 

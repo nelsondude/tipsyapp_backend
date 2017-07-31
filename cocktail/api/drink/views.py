@@ -66,6 +66,7 @@ class DrinkListAPIView(ListAPIView):
         query       = self.request.GET.get("q")
         filters     = self.request.GET.getlist('filter')
         order       = self.request.GET.get('ordering')
+
         if not IngredientsUserNeeds.objects.all().filter(user=user).exists():
             update_drink_counts(user)
 
@@ -87,11 +88,11 @@ class DrinkListAPIView(ListAPIView):
             else:
                 qs = sorted(qs.distinct(),
                                    key= lambda obj:
-                                   obj.ingredientsuserneeds_set
+                                   (obj.ingredientsuserneeds_set
                                    .all()
                                    .filter(user=user)
                                    .first()
-                                   .count_need
+                                   .count_need)/(obj.ingredients.all().count()),
                                    )
         return qs
 
