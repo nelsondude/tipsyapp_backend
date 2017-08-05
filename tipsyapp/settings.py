@@ -178,7 +178,7 @@ CELERY_TIMEZONE = TIME_ZONE
 try:
     CELERY_BROKER_URL = os.environ['REDIS_URL']
     CELERY_RESULT_BACKEND = os.environ['REDIS_URL']
-    # DEBUG = False
+    DEBUG = False
 except:
     pass
 
