@@ -4,7 +4,15 @@ from rest_framework.relations import HyperlinkedIdentityField
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 
-from cocktail.models import Drink, Amount, WebpageURL, Playlist, IngredientsUserNeeds
+from cocktail.models import (
+    Drink,
+    Amount,
+    WebpageURL,
+    Playlist,
+    IngredientsUserNeeds,
+    Ingredient,
+    Layer
+)
 
 import urllib.parse as urlparse
 
@@ -32,23 +40,39 @@ class WebpageURLMdelSerializer(serializers.ModelSerializer):
 
 class AmountModelSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
-
+    need_it = serializers.SerializerMethodField()
     class Meta:
         model = Amount
         fields = [
             'name',
             'amount',
+            'need_it'
         ]
     def get_name(self, obj):
         return obj.ingredient.name
 
+    def get_need_it(self, obj):
+        user = self.context['request'].user
+        qs = Ingredient.objects.all().filter(user=user, slug=obj.ingredient.slug)
+        return not qs.exists()
+
+class LayerModelSerializer(serializers.ModelSerializer):
+    ingredients = AmountModelSerializer(many=True, source='amount_set')
+    name = serializers.CharField(source='layer')
+    class Meta:
+        model = Layer
+        fields = [
+            'name',
+            'ingredients'
+        ]
+
 class DrinkDetailModelSerializer(serializers.ModelSerializer):
-    amount = AmountModelSerializer(many=True)
-    count_need = serializers.SerializerMethodField()
     embed_url = serializers.SerializerMethodField()
     url = drink_detail_url
     playlists = serializers.SerializerMethodField()
     webpage_url = WebpageURLMdelSerializer()
+    layers = LayerModelSerializer(many=True, source='layer_set')
+    timestamp = serializers.DateTimeField(format="%b %d, %Y")
 
     class Meta:
         model = Drink
@@ -56,14 +80,12 @@ class DrinkDetailModelSerializer(serializers.ModelSerializer):
             'name',
             'embed_url',
             'webpage_url',
-            'count_need',
             'thumbnail',
-            'amount',
             'timestamp',
             'rating',
             'playlists',
             'url',
-            'user',
+            'layers',
         ]
 
     def get_playlists(self, obj):
@@ -78,20 +100,14 @@ class DrinkDetailModelSerializer(serializers.ModelSerializer):
         pre = "https://www.youtube.com/embed/"
         return pre + embed
 
-    def get_count_need(self, obj):
-        ingredient_qs = obj.ingredients.all()
-        user = self.context['request'].user
-        user_qs = User.objects.filter(username=user.username)
-        if user_qs.exists() and user_qs.count() == 1:
-            user_obj = user_qs.first()
-            qs = user_obj.ingredient_set.all()
-            return ingredient_qs.count() - (qs & ingredient_qs).count()
-        return 0
 
 
 class DrinkListModelSerializer(serializers.ModelSerializer):
     url = drink_detail_url
     count_need = serializers.SerializerMethodField()
+    count_have = serializers.SerializerMethodField()
+    count_total = serializers.SerializerMethodField()
+
     class Meta:
         model = Drink
         fields = [
@@ -99,27 +115,21 @@ class DrinkListModelSerializer(serializers.ModelSerializer):
             'thumbnail',
             'url',
             'count_need',
-            'slug'
+            'count_have',
+            'count_total',
+            'slug',
         ]
     def get_count_need(self, obj):
         count_obj = obj.ingredientsuserneeds_set.all().filter(user=self.context['request'].user).first()
         if count_obj:
-            return count_obj.count_need
+            return obj.ingredients.all().count() - count_obj.count_have
         return obj.ingredients.all().count()
 
+    def get_count_have(self, obj):
+        count_obj = obj.ingredientsuserneeds_set.all().filter(user=self.context['request'].user).first()
+        if count_obj:
+            return count_obj.count_have
+        return 0
 
-class DrinkCCListSerializer(serializers.HyperlinkedModelSerializer):
-    drinks = serializers.SerializerMethodField('paginated_drinks')
-    class Meta:
-        model = IngredientsUserNeeds
-        fields = [
-            'count_need',
-            'user',
-            'drinks'
-        ]
-    def paginated_drinks(self, obj):
-        drinks = Drink.objects.filter(ingredientsuserneeds=obj)
-        paginator = pagination.PageNumberPagination()
-        page = paginator.paginate_queryset(drinks, self.context['request'])
-        serializer = DrinkListModelSerializer(page, many=True, context={'request': self.context['request']})
-        return serializer.data
+    def get_count_total(self, obj):
+        return obj.ingredients.all().count()

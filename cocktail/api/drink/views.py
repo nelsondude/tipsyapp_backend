@@ -15,7 +15,6 @@ from .serializers import (
     DrinkListModelSerializer,
     DrinkDetailModelSerializer,
     PlaylistModelSerializer,
-    DrinkCCListSerializer
 )
 
 from cocktail.tasks import process_youtube_videos, update_drink_counts
@@ -66,11 +65,13 @@ class DrinkListAPIView(ListAPIView):
         query       = self.request.GET.get("q")
         filters     = self.request.GET.getlist('filter')
         order       = self.request.GET.get('ordering')
+        atLeastOne  = self.request.GET.get('atLeastOne')
 
         if not IngredientsUserNeeds.objects.all().filter(user=user).exists():
             update_drink_counts(user)
 
         qs = Drink.objects.all()
+
         if query:
             qs = qs.filter(name__icontains=query)
         elif filters:
@@ -82,47 +83,23 @@ class DrinkListAPIView(ListAPIView):
         elif userQuery and user.is_authenticated():
             qs = qs.filter(user=user)
 
+        if atLeastOne:
+            needs_qs = IngredientsUserNeeds.objects.all().filter(user=user, count_have=0)
+            if needs_qs.exists():
+                needs_obj = needs_qs.first()
+                qs = qs.exclude(id__in=[obj.id for obj in needs_obj.drinks.all()])
+
         if order:
             if order == 'timestamp':
                 qs = qs.order_by('-timestamp').distinct()
             else:
                 qs = sorted(qs.distinct(),
                                    key= lambda obj:
-                                   (obj.ingredientsuserneeds_set
+                                   obj.ingredientsuserneeds_set
                                    .all()
                                    .filter(user=user)
                                    .first()
-                                   .count_need)/(obj.ingredients.all().count()),
+                                   .count_have,
+                                    reverse=True
                                    )
         return qs
-
-
-
-class DrinkCountsAPIView(ListAPIView):
-    serializer_class = DrinkCCListSerializer
-    pagination_class = LargeResultsSetPagination
-
-    def get_queryset(self, *args, **kwargs):
-        user = self.request.user
-        userQuery = self.request.GET.get('user')
-        query = self.request.GET.get("q")
-        filters = self.request.GET.getlist('filter')
-        order = self.request.GET.get('ordering')
-
-        qs = IngredientsUserNeeds.objects.all().filter(user=user)
-        if query:
-            qs = qs.filter(drinks__name__icontains=query)
-        elif filters:
-            print(filters)
-            qs = qs.filter(drinks__playlist__name__iexact=filters[0])
-            for filter in filters[1:]:
-                qs = qs | IngredientsUserNeeds.objects.filter(
-                    drinks__playlist__name__iexact=filter)
-        elif userQuery and user.is_authenticated():
-            qs = qs.filter(drinks__user=user)
-            for obj in qs:
-                sub_qs = obj.drinks.all()
-                new_qs = sub_qs.filter(user=user)
-                obj.drinks = new_qs
-
-        return qs.distinct()

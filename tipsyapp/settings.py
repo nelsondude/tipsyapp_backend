@@ -25,9 +25,9 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 SECRET_KEY = "k9gf6za2z46_yyy@7c01z6!78pq%srt!=7)l9!td-95-4_lbfa"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-SITE_ID=1
+# SITE_ID=1
 
 # Application definition
 
@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
+    # 'django.contrib.sites',
     'django.contrib.messages',
     # Disable Django's own staticfiles handling in favour of WhiteNoise, for
     # greater consistency between gunicorn and `./manage.py runserver`. See:
@@ -51,10 +51,15 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_filters',
 
+    # DRF auth0
+    'rest_framework_jwt',
+    'rest_framework_auth0',
+
     # RestFramework OAuth
-    'oauth2_provider',
-    'social_django',
-    'rest_framework_social_oauth2',
+    # 'oauth2_provider',
+    # 'social_django',
+    # 'rest_framework_social_oauth2',
+
 
     # My Apps
     'cocktail',
@@ -87,8 +92,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             #     RESTFRAMEWORK
-                'social_django.context_processors.backends',
-                'social_django.context_processors.login_redirect',
+            #     'social_django.context_processors.backends',
+            #     'social_django.context_processors.login_redirect',
             ],
             'debug': DEBUG,
         },
@@ -108,28 +113,6 @@ DATABASES = {
     }
 }
 
-
-AUTHENTICATION_BACKENDS = (
-    # Facebook OAuth2
-    'social_core.backends.facebook.FacebookAppOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
-
-    # django-rest-framework-social-oauth2
-    'rest_framework_social_oauth2.backends.DjangoOAuth2',
-
-    # Django
-    'django.contrib.auth.backends.ModelBackend',
-)
-
-# Facebook configuration
-SOCIAL_AUTH_FACEBOOK_KEY = '305106739950693'
-SOCIAL_AUTH_FACEBOOK_SECRET = '7493acfb4f03e9ffeea382d0f4645cb3'
-
-# Define SOCIAL_AUTH_FACEBOOK_SCOPE to get extra permissions from facebook. Email is not sent by default, to get it, you must request the email permission:
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
-    'fields': 'id, name, email'
-}
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -185,16 +168,19 @@ STATICFILES_DIRS = [
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-# CELERY_BROKER_URL = 'redis://localhost:6379'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
-CELERY_BROKER_URL = os.environ['REDIS_URL']
-CELERY_RESULT_BACKEND = os.environ['REDIS_URL']
-# DEBUG = False
+try:
+    CELERY_BROKER_URL = os.environ['REDIS_URL']
+    CELERY_RESULT_BACKEND = os.environ['REDIS_URL']
+    # DEBUG = False
+except:
+    pass
 
 
 
@@ -206,47 +192,27 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-
-        # OAuth Authentication
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        'rest_framework_social_oauth2.authentication.SocialAuthentication',
+        'rest_framework_auth0.authentication.Auth0JSONWebTokenAuthentication',
     ),
 }
 
+from cryptography.x509 import load_pem_x509_certificate
+from cryptography.hazmat.backends import default_backend
 
-JWT_AUTH = {
-    'JWT_ENCODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_encode_handler',
+certificate_text = open("tipsyapp/rsa_certificates/nelsondude.pem", 'rb').read()
+certificate = load_pem_x509_certificate(certificate_text, default_backend())
+default_publickey = certificate.public_key()
 
-    'JWT_DECODE_HANDLER':
-    'rest_framework_jwt.utils.jwt_decode_handler',
-
-    'JWT_PAYLOAD_HANDLER':
-    'rest_framework_jwt.utils.jwt_payload_handler',
-
-    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
-    'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
-
-    'JWT_RESPONSE_PAYLOAD_HANDLER':
-    'rest_framework_jwt.utils.jwt_response_payload_handler',
-
-    'JWT_SECRET_KEY': SECRET_KEY,
-    'JWT_GET_USER_SECRET_KEY': None,
-    'JWT_PUBLIC_KEY': None,
-    'JWT_PRIVATE_KEY': None,
-    'JWT_ALGORITHM': 'HS256',
-    'JWT_VERIFY': True,
-    'JWT_VERIFY_EXPIRATION': True,
-    'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=30000),
-    'JWT_AUDIENCE': None,
-    'JWT_ISSUER': None,
-
-    'JWT_ALLOW_REFRESH': False,
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=7),
-
-    'JWT_AUTH_HEADER_PREFIX': 'JWT',
-    'JWT_AUTH_COOKIE': None,
-
+AUTH0 = {
+    'CLIENTS': {
+        'default': {
+            'AUTH0_CLIENT_ID': 'a68vlptE8IGlKOHqv7whQLY5gm-Xnbbq',  #make sure it's the same string tha
+            'AUTH0_ALGORITHM': 'RS256',
+            'PUBLIC_KEY': default_publickey
+            # 'AUTH0_CLIENT_SECRET': '<YOUR_AUTH0_CLIENT_SECRET>',
+            # 'CLIENT_SECRET_BASE64_ENCODED': True,  # default to True, if you're Auth0 user since December, maybe you should set it to False
+        }
+    },
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',  # default prefix used by djangorestframework_jwt
+    'AUTHORIZATION_EXTENSION': False,  # default to False
 }

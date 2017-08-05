@@ -43,7 +43,7 @@ def seperate_amount_from_ingredient(line):
     key_words = "or : of ) cup cups dash dashes drop drops oz ozs oz. ml mls ml. pack with teaspoon tsp tablespoon tablespoons teaspoons tbsp part parts bottle bottles gal. gallon gallons pint pints pinch pinches splash splashes".split(" ")
     latest_index = 0
     words = line.split(" ")
-    for i in range(len(words)):
+    for i in range(len(words)-1):
         word = words[i]
         for j in range(len(key_words)):
             key_word = key_words[j]
@@ -265,20 +265,13 @@ def get_all_videos_in_playlist(playlist, nextPageToken=None, videos=None):
     if not videos:
         videos = []
 
-
     url = "https://www.googleapis.com/youtube/v3/playlistItems"
-    publishedAfter = '1970-01-01T00:00:00Z'
-    qs = Drink.objects.all().order_by('-timestamp')
-    publishedBefore = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")+"Z"
-    if qs.exists():
-        publishedAfter = qs.first().timestamp.strftime("%Y-%m-%dT%H:%M:%S")+"Z"
-
     values = {
-        'part': 'snippet',
+        'part': 'snippet, contentDetails',
         'playlistId': playlist.get('id'),
         'maxResults': 50,
-        'publishedAfter': publishedAfter,
-        'publishedBefore': publishedBefore
+        # 'publishedAfter': publishedAfter,
+        # 'publishedBefore': publishedBefore
     }
     if nextPageToken:
         values['pageToken'] = nextPageToken
@@ -292,8 +285,6 @@ def get_all_videos_in_playlist(playlist, nextPageToken=None, videos=None):
         obj = qs.first()
         qs_count = obj.webpage_urls.all().count()
         print(qs_count, count)
-        if qs_count == count:
-            return videos
 
     # Recursive function to go through all pages until the end
     nextPageToken = data.get('nextPageToken')
@@ -303,7 +294,12 @@ def get_all_videos_in_playlist(playlist, nextPageToken=None, videos=None):
         recipes = get_ingredients_from_description(description, title)
         video_id = item['snippet']['resourceId']['videoId']
         youtube_link = "https://www.youtube.com/watch?v="+video_id
-        published_at = item['snippet']['publishedAt']
+        try:
+            published_at = item['contentDetails']['videoPublishedAt']
+        except:
+            published_at = item['snippet']['publishedAt']
+
+
         try:
             thumbnail = item['snippet']['thumbnails']['maxres']['url']
         except:

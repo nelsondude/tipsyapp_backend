@@ -49,16 +49,8 @@ class IngredientListAPIView(ListAPIView):
             qs = Ingredient.objects.filter(name__icontains=query)
         elif suggested:
             qs = Ingredient.objects.exclude(user=user).annotate(num_drinks=Count('drink')) \
-                 .order_by('-num_drinks')[:5]
+                 .order_by('-num_drinks')[:15]
         elif user.is_authenticated():
             qs = Ingredient.objects.filter(user=user).order_by('name')
         return qs
 
-'''
-queryset of all ingredients in pantry
-for each drink in the website, find count of ingredients in ingredients queryset
-then find intersection of all possible querysets and list counts
-for ones with the highest counts, list those first
-
-
-'''

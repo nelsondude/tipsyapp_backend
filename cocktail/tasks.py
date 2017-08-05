@@ -6,7 +6,8 @@ from .utils import (
     get_channel_from_name,
     get_playlists_from_channel,
     get_all_videos_in_playlist,
-    save_all_channel_links
+    save_all_channel_links,
+    print_json
 )
 from .models import (
     Ingredient,
@@ -25,20 +26,20 @@ User = get_user_model()
 def update_single_drink(user, drink_obj):
     user_qs = user.ingredient_set.all()
     ing_qs = drink_obj.ingredients.all()
-    count_need = ing_qs.count() - (user_qs & ing_qs).count()
+    count_have = (user_qs & ing_qs).count()
     # Remove Previous Ones
     temp = IngredientsUserNeeds.objects.filter(
         user=user,
         drinks=drink_obj
     )
     for obj in temp:
-        if count_need != obj.count_need:
+        if count_have != obj.count_have:
             obj.drinks.remove(drink_obj)
 
     # Create Count Obj
     obj, created = IngredientsUserNeeds.objects.get_or_create(
         user=user,
-        count_need=count_need
+        count_have=count_have
     )
     if created:
         obj.save()
@@ -64,7 +65,7 @@ def update_all_drinks():
 def process_youtube_videos():
     # channel_id = get_channel_from_name('TipsyBartender')[0]
     # playlists = get_playlists_from_channel(channel_id)
-    # entries = get_all_videos_in_playlist(playlists[7])
+    # entries = get_all_videos_in_playlist(playlists[1])
     entries = save_all_channel_links()
     for i in range(len(entries)):
         print(i*100/len(entries))
@@ -102,7 +103,7 @@ def process_youtube_videos():
                 drink.save()
                 for layer in recipe.get("layers"):
                     layer_title = layer.get("layer_title").title()
-                    layer_title_obj = Layer(layer=layer_title)
+                    layer_title_obj = Layer(layer=layer_title, drink=drink)
                     layer_title_obj.save()
                     for amount, ingredient in layer["ingredients"]:
                         ingredient_obj, created = Ingredient.objects.get_or_create(name=ingredient.title().strip())
@@ -115,7 +116,6 @@ def process_youtube_videos():
                                             layer=layer_title_obj
                                             )
                         ingred_amount_obj.save()
-                        drink.amount.add(ingred_amount_obj)
                         drink.ingredients.add(ingredient_obj)
             drink.playlist.add(playlist_obj)
     update_all_drinks()
