@@ -67,10 +67,10 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -193,6 +193,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_auth0.authentication.Auth0JSONWebTokenAuthentication',
+        # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        # 'rest_framework_social_oauth2.authentication.SocialAuthentication',
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication'
     ),
 }
 

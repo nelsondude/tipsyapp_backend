@@ -38,19 +38,24 @@ class IngredientDetailAPIView(UpdateModelMixin, RetrieveAPIView):
 class IngredientListAPIView(ListAPIView):
     serializer_class = IngredientModelSerializer
     pagination_class = LargeResultsSetPagination
-    # permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         user = self.request.user
         query = self.request.GET.get('q')
         suggested = self.request.GET.get('suggested')
-        qs = Ingredient.objects.all()
         if query:
             qs = Ingredient.objects.filter(name__icontains=query)
         elif suggested:
-            qs = Ingredient.objects.exclude(user=user).annotate(num_drinks=Count('drink')) \
+            if user.is_authenticated():
+                qs = Ingredient.objects.exclude(user=user).annotate(num_drinks=Count('drink')) \
+                 .order_by('-num_drinks')[:15]
+            else:
+                qs = Ingredient.objects.annotate(num_drinks=Count('drink')) \
                  .order_by('-num_drinks')[:15]
         elif user.is_authenticated():
             qs = Ingredient.objects.filter(user=user).order_by('name')
+        else:
+            qs = Ingredient.objects.none()
         return qs
 

@@ -44,20 +44,22 @@ class DrinkDetailAPIView(UpdateModelMixin, RetrieveAPIView):
     def get_object(self):
         obj = super(DrinkDetailAPIView, self).get_object()
         changeUser = self.request.GET.get('changeUser')
-        qs = User.objects.filter(username=self.request.user.username)
-        if qs.exists() and qs.count() == 1 and changeUser:
-            user_obj = qs.first()
-            if obj.user.all().filter(username=user_obj.username).exists():
-                obj.user.remove(user_obj)
-            else:
-                obj.user.add(user_obj)
-            obj.save()
+        user = self.request.user
+        if user.is_authenticated():
+            qs = User.objects.filter(username=user.username)
+            if qs.exists() and qs.count() == 1 and changeUser:
+                user_obj = qs.first()
+                if obj.user.all().filter(username=user_obj.username).exists():
+                    obj.user.remove(user_obj)
+                else:
+                    obj.user.add(user_obj)
+                obj.save()
         return obj
 
 class DrinkListAPIView(ListAPIView):
     serializer_class = DrinkListModelSerializer
     pagination_class = StandardResultsSetPagination
-    # permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
 
     def get_queryset(self, *args, **kwargs):
         user        = self.request.user
@@ -67,7 +69,7 @@ class DrinkListAPIView(ListAPIView):
         order       = self.request.GET.get('ordering')
         atLeastOne  = self.request.GET.get('atLeastOne')
 
-        if not IngredientsUserNeeds.objects.all().filter(user=user).exists():
+        if user.is_authenticated() and not IngredientsUserNeeds.objects.all().filter(user=user).exists():
             update_drink_counts(user)
 
         qs = Drink.objects.all()
@@ -80,10 +82,14 @@ class DrinkListAPIView(ListAPIView):
             for filter in filters[1:]:
                 qs = qs | Drink.objects.filter(
                     playlist__name__iexact=filter)
-        elif userQuery and user.is_authenticated():
+
+        elif user.is_authenticated() and userQuery:
             qs = qs.filter(user=user)
 
-        if atLeastOne:
+        if not user.is_authenticated() and userQuery:
+            qs = Drink.objects.none()
+
+        if user.is_authenticated() and atLeastOne:
             needs_qs = IngredientsUserNeeds.objects.all().filter(user=user, count_have=0)
             if needs_qs.exists():
                 needs_obj = needs_qs.first()
@@ -92,7 +98,7 @@ class DrinkListAPIView(ListAPIView):
         if order:
             if order == 'timestamp':
                 qs = qs.order_by('-timestamp').distinct()
-            else:
+            elif user.is_authenticated() and order == 'count_need':
                 qs = sorted(qs.distinct(),
                                    key= lambda obj:
                                    obj.ingredientsuserneeds_set
