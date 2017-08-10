@@ -9,7 +9,6 @@ from cocktail.models import (
     Amount,
     WebpageURL,
     Playlist,
-    IngredientsUserNeeds,
     Ingredient,
     Layer
 )
