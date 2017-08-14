@@ -31,7 +31,7 @@ class UpdateDatabaseAPIView(APIView):
 class PlaylistListAPIView(ListAPIView):
     serializer_class = PlaylistModelSerializer
     permission_classes = [AllowAny]
-    queryset = Playlist.objects.all().order_by('name')
+    queryset = Playlist.objects.all().order_by('name').filter(visible=True)
     pagination_class = LargeResultsSetPagination
 
 
@@ -99,6 +99,17 @@ class DrinkListAPIView(ListAPIView):
             if order == 'timestamp':
                 qs = qs.order_by('-timestamp').distinct()
             elif user.is_authenticated() and order == 'count_need':
+                qs = sorted(qs.distinct(),
+                                   key= lambda obj:
+                                   obj.ingredients.all().count() -
+                                   obj.ingredientsuserneeds_set
+                                   .all()
+                                   .filter(user=user)
+                                   .first()
+                                   .count_have
+                                   )
+
+            elif user.is_authenticated() and order == 'count_have':
                 qs = sorted(qs.distinct(),
                                    key= lambda obj:
                                    obj.ingredientsuserneeds_set

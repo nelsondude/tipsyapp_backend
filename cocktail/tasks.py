@@ -95,7 +95,7 @@ def process_youtube_videos():
 
         for recipe in entry_dict.get("recipes"):
             name = recipe.get("title").title().strip()
-            drink, created = Drink.objects.get_or_create(name=name)
+            drink, created = Drink.objects.get_or_create(name=name, webpage_url=webpage_obj)
             if created:
                 drink.webpage_url = webpage_obj
                 drink.thumbnail = thumbnail
@@ -117,6 +117,9 @@ def process_youtube_videos():
                                             )
                         ingred_amount_obj.save()
                         drink.ingredients.add(ingredient_obj)
+
+                for user in User.objects.all():
+                    update_single_drink(user, drink)
+
             drink.playlist.add(playlist_obj)
-    update_all_drinks()
 

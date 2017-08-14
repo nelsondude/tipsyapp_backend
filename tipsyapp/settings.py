@@ -202,14 +202,14 @@ REST_FRAMEWORK = {
 from cryptography.x509 import load_pem_x509_certificate
 from cryptography.hazmat.backends import default_backend
 
-certificate_text = open("tipsyapp/rsa_certificates/nelsondude.pem", 'rb').read()
+certificate_text = open("tipsyapp/rsa_certificates/tipsyauth.pem", 'rb').read()
 certificate = load_pem_x509_certificate(certificate_text, default_backend())
 default_publickey = certificate.public_key()
 
 AUTH0 = {
     'CLIENTS': {
         'default': {
-            'AUTH0_CLIENT_ID': 'a68vlptE8IGlKOHqv7whQLY5gm-Xnbbq',  #make sure it's the same string tha
+            'AUTH0_CLIENT_ID': 'CtSVk5zSNDnGcvSNn2wjaDEp36TmLvtQ',  #make sure it's the same string tha
             'AUTH0_ALGORITHM': 'RS256',
             'PUBLIC_KEY': default_publickey
             # 'AUTH0_CLIENT_SECRET': '<YOUR_AUTH0_CLIENT_SECRET>',

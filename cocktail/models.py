@@ -29,6 +29,7 @@ class Category(models.Model):
         return self.category
 
 class Playlist(models.Model):
+    visible = models.BooleanField(default=False)
     name = models.CharField(max_length=1000)
     thumbnail = models.URLField()
     playlist_id = models.CharField(max_length=1000)
