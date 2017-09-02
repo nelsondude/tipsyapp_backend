@@ -23,6 +23,5 @@ urlpatterns = [
     url(r'^api/drink/',         include('cocktail.api.drink.urls',          namespace="api-drink")),
     url(r'^api/webpage_url/',   include('cocktail.api.webpage_url.urls',    namespace="api-webpage_url")),
     url(r'^api/accounts/',      include('accounts.api.urls',                namespace="api-accounts")),
-    # url(r'^auth/', include('rest_framework_social_oauth2.urls')),
     url(r'^.*', TemplateView.as_view(template_name="ang_home.html"), name='index')
 ]

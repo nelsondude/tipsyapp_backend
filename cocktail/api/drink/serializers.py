@@ -75,6 +75,8 @@ class DrinkDetailModelSerializer(serializers.ModelSerializer):
     layers = LayerModelSerializer(many=True, source='layer_set')
     timestamp = serializers.DateTimeField(format="%b %d, %Y")
 
+    have_it = serializers.SerializerMethodField()
+
     class Meta:
         model = Drink
         fields = [
@@ -87,7 +89,13 @@ class DrinkDetailModelSerializer(serializers.ModelSerializer):
             'playlists',
             'url',
             'layers',
+            'have_it'
         ]
+    def get_have_it(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated():
+            return Drink.objects.all().filter(id=obj.id, user=user).exists()
+        return False
 
     def get_playlists(self, obj):
         result = []

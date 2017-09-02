@@ -8,7 +8,7 @@ from .views import RegisterAPIView, LoginAPIView, UserAPIView
 
 urlpatterns = [
     url(r'^register/$', RegisterAPIView.as_view(), name='register'),
-    url(r'^login/token/$', obtain_jwt_token),
+    url(r'^login/token/', obtain_jwt_token),
     url(r'^$', UserAPIView.as_view(), name='user')
 
 ]

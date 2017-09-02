@@ -45,6 +45,7 @@ class DrinkDetailAPIView(UpdateModelMixin, RetrieveAPIView):
         obj = super(DrinkDetailAPIView, self).get_object()
         changeUser = self.request.GET.get('changeUser')
         user = self.request.user
+        print(changeUser, user)
         if user.is_authenticated():
             qs = User.objects.filter(username=user.username)
             if qs.exists() and qs.count() == 1 and changeUser:
@@ -117,6 +118,16 @@ class DrinkListAPIView(ListAPIView):
                                    .filter(user=user)
                                    .first()
                                    .count_have,
+                                    reverse=True
+                                   )
+            elif user.is_authenticated() and order == 'percent':
+                qs = sorted(qs.distinct(),
+                                   key= lambda obj:
+                                   obj.ingredientsuserneeds_set
+                                   .all()
+                                   .filter(user=user)
+                                   .first()
+                                   .count_have/obj.ingredients.all().count(),
                                     reverse=True
                                    )
         return qs
