@@ -192,11 +192,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_auth0.authentication.Auth0JSONWebTokenAuthentication',
-
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication'
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_auth0.authentication.Auth0JSONWebTokenAuthentication'
     ),
 }
 
@@ -245,7 +244,7 @@ JWT_AUTH = {
     'JWT_VERIFY': True,
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LEEWAY': 0,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3000),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
     'JWT_AUDIENCE': None,
     'JWT_ISSUER': None,
 
