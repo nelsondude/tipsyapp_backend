@@ -206,14 +206,23 @@ certificate_text = open("tipsyapp/rsa_certificates/tipsyauth.pem", 'rb').read()
 certificate = load_pem_x509_certificate(certificate_text, default_backend())
 default_publickey = certificate.public_key()
 
+
+mobile_certificate_text = open("tipsyapp/rsa_certificates/tipsyauthmobile.pem", 'rb').read()
+certificate = load_pem_x509_certificate(mobile_certificate_text, default_backend())
+mobile_publickey = certificate.public_key()
+
+
 AUTH0 = {
     'CLIENTS': {
         'default': {
             'AUTH0_CLIENT_ID': 'CtSVk5zSNDnGcvSNn2wjaDEp36TmLvtQ',  #make sure it's the same string tha
             'AUTH0_ALGORITHM': 'RS256',
             'PUBLIC_KEY': default_publickey
-            # 'AUTH0_CLIENT_SECRET': '<YOUR_AUTH0_CLIENT_SECRET>',
-            # 'CLIENT_SECRET_BASE64_ENCODED': True,  # default to True, if you're Auth0 user since December, maybe you should set it to False
+        },
+        'mobile': {
+            'AUTH0_CLIENT_ID': 'fTA6yClsXZOttHV5CWu869EwXZUAIJyA',  # make sure it's the same string tha
+            'AUTH0_ALGORITHM': 'RS256',
+            'PUBLIC_KEY': mobile_publickey
         }
     },
     'JWT_AUTH_HEADER_PREFIX': 'JWT',  # default prefix used by djangorestframework_jwt
