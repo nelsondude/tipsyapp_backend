@@ -225,6 +225,23 @@ AUTH0 = {
             'PUBLIC_KEY': mobile_publickey
         }
     },
-    'JWT_AUTH_HEADER_PREFIX': 'JWT',  # default prefix used by djangorestframework_jwt
-    'AUTHORIZATION_EXTENSION': False,  # default to False
 }
+
+# AUTH0 = {
+#   'CLIENTS': {
+#       'default': {
+#           'AUTH0_CLIENT_ID': 'CtSVk5zSNDnGcvSNn2wjaDEp36TmLvtQ',  #make sure it's the same string that aud attribute in your payload provides
+#           'AUTH0_CLIENT_SECRET': 'L3N9EgN3qF8_ZwvfoG4_d-y-V3tpcxKweUoBsJIoTxH4xkJDfwhXxPPQwROQBRmE',
+#           'CLIENT_SECRET_BASE64_ENCODED': False,  # default to True, if you're Auth0 user since December, maybe you should set it to False,
+#           'AUTH0_ALGORITHM': 'HS256',  # HS256 or RS256
+#       },
+#       'mobile': {
+#           'AUTH0_CLIENT_ID': 'fTA6yClsXZOttHV5CWu869EwXZUAIJyA',
+#           'AUTH0_CLIENT_SECRET': 'x2axpSEgUNVXtw68b1kE_U9N67rdFWgpER2MeJB0qaL7gvAHdO9OtOGRmxlAyz1C',
+#           'CLIENT_SECRET_BASE64_ENCODED': False,
+#           'AUTH0_ALGORITHM': 'HS256',  # HS256 or RS256
+#
+#       }
+#
+#   },
+# }
