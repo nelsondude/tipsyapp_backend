@@ -82,12 +82,13 @@ def process_youtube_videos():
         if not created:
             webpage_obj.save()
 
-        playlist_obj, created = Playlist.objects.get_or_create(
-            name=playlist['title'].title(),
-            thumbnail=playlist['default_thumbnail'],
-            playlist_id=playlist['id'])
 
-        if not created:
+        playlist_obj, created = Playlist.objects.get_or_create(
+            name=playlist['title'].title())
+
+        if created:
+            playlist_obj.thumbnail = playlist['default_thumbnail']
+            playlist_obj.playlist_id = playlist['id']
             playlist_obj.save()
 
         if not playlist_obj.webpage_urls.all().filter(webpage_url=url).exists():
