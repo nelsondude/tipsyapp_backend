@@ -79,7 +79,7 @@ def process_youtube_videos():
         webpage_obj, created = WebpageURL.objects.get_or_create(
             webpage_url=url,
             description=description)
-        if not created:
+        if created:
             webpage_obj.save()
 
 
