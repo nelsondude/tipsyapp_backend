@@ -97,6 +97,24 @@ class DrinkListAPIView(ListAPIView):
                 qs = qs.exclude(id__in=[obj.id for obj in needs_obj.drinks.all()])
 
         if order:
+            query = '''
+                select *, count_total-count_have as count_need, round(cast(count_have as decimal) / count_total, 2) as percent
+                from (select
+                    cd.name,
+                    cd.id as drink_id,
+                    count(*) filter (where ci.name in (
+                      select ci.name
+                      from cocktail_ingredient as ci
+                      join cocktail_ingredient_user as ciu on ci.id=ciu.ingredient_id
+                      where ciu.user_id=21
+                    )) as count_have,
+                    count(*) as count_total
+                  from cocktail_drink as cd
+                  join cocktail_drink_ingredients as cdi on cd.id=cdi.drink_id
+                  join cocktail_ingredient as ci on ci.id=cdi.ingredient_id
+                  group by cd.name, cd.id) as ss
+            '''
+
             if order == 'timestamp':
                 qs = qs.order_by('-timestamp').distinct()
             elif user.is_authenticated() and order == 'count_need':
