@@ -9,7 +9,6 @@ from .serializers import IngredientModelSerializer
 
 from cocktail.api.pagination import LargeResultsSetPagination
 from cocktail.models import Ingredient
-from cocktail.tasks import update_drink_counts
 
 User = get_user_model()
 
@@ -25,14 +24,11 @@ class IngredientDetailAPIView(UpdateModelMixin, RetrieveAPIView):
         qs = User.objects.filter(username=self.request.user.username)
         if qs.exists() and qs.count() == 1:
             user_obj = qs.first()
-            added = True
             if obj.user.all().filter(username=user_obj.username).exists():
                 obj.user.remove(user_obj)
-                added = False
             else:
                 obj.user.add(user_obj)
             obj.save()
-            update_drink_counts(user_obj, ingredient=obj)
         return obj
 
 class IngredientListAPIView(ListAPIView):

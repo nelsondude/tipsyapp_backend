@@ -112,9 +112,9 @@ DATABASES = {
         # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'tipsyapp',
-        'USER': 'alexandernelson',
+        'USER': 'atnelson',
         'PASSWORD': 'Buddy1009',
-        'HOST': 'localhost',
+        'HOST': 'atnelson-db.cagjwavte34n.us-east-1.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
@@ -150,8 +150,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = False
 
 # Update database configuration with $DATABASE_URL.
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
+# db_from_env = dj_database_url.config(conn_max_age=500)
+# DATABASES['default'].update(db_from_env)
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

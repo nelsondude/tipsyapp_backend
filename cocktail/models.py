@@ -106,11 +106,10 @@ class Amount(models.Model):
 
 
 
-
+'''
 class IngredientsUserNeeds(models.Model):
     user = models.ForeignKey(User, blank=True, null=True)
     count_have = models.IntegerField(default=0)
-    # All Possible drinks
     drinks = models.ManyToManyField(Drink)
 
     class Meta:
@@ -118,7 +117,7 @@ class IngredientsUserNeeds(models.Model):
 
     def __str__(self):
         return '%s | %s' % (self.user.username, self.drinks.all().count())
-
+'''
 
 # _____________________________________________________________
 # Account Profile Extra Information
@@ -137,12 +136,6 @@ class Profile(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
-        for drink_obj in Drink.objects.all():
-            obj, created = IngredientsUserNeeds.objects.get_or_create(
-                user=instance,
-                count_have=0)
-            obj.drinks.add(drink_obj)
-
 
 
 @receiver(post_save, sender=User)

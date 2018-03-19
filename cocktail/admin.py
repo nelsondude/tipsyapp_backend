@@ -9,8 +9,7 @@ from .models import (
     WebpageURL,
     Amount,
     Playlist,
-    Profile,
-    IngredientsUserNeeds
+    Profile
     )
 
 admin.site.register(Category)
@@ -20,4 +19,4 @@ admin.site.register(WebpageURL)
 admin.site.register(Amount)
 admin.site.register(Playlist)
 admin.site.register(Profile)
-admin.site.register(IngredientsUserNeeds)
+

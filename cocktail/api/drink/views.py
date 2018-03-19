@@ -3,21 +3,26 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import IsAdminUser
+from rest_framework.renderers import JSONRenderer
 from django.contrib.auth import get_user_model
+from django.core import serializers
 from rest_framework.response import Response
+import json
+
+
 
 from cocktail.api.pagination import (
     LargeResultsSetPagination,
     StandardResultsSetPagination
 )
-from cocktail.models import Drink, Playlist, IngredientsUserNeeds
+from cocktail.models import Drink, Playlist
 from .serializers import (
     DrinkListModelSerializer,
     DrinkDetailModelSerializer,
     PlaylistModelSerializer,
 )
 
-from cocktail.tasks import process_youtube_videos, update_drink_counts
+from cocktail.tasks import process_youtube_videos
 
 User = get_user_model()
 
@@ -62,16 +67,13 @@ class DrinkListAPIView(ListAPIView):
     pagination_class = StandardResultsSetPagination
     permission_classes = [AllowAny]
 
-    def get_queryset(self, *args, **kwargs):
-        user        = self.request.user
-        userQuery   = self.request.GET.get('user')
-        query       = self.request.GET.get("q")
-        filters     = self.request.GET.getlist('filter')
-        order       = self.request.GET.get('ordering')
-        atLeastOne  = self.request.GET.get('atLeastOne')
-
-        if user.is_authenticated() and not IngredientsUserNeeds.objects.all().filter(user=user).exists():
-            update_drink_counts(user)
+    def get_queryset(self):
+        user = self.request.user
+        userQuery = self.request.GET.get('user')
+        query = self.request.GET.get("q")
+        filters = self.request.GET.getlist('filter')
+        order = self.request.GET.get('ordering')
+        atLeastOne = self.request.GET.get('atLeastOne')
 
         qs = Drink.objects.all()
 
@@ -91,61 +93,42 @@ class DrinkListAPIView(ListAPIView):
             qs = Drink.objects.none()
 
         if user.is_authenticated() and atLeastOne:
-            needs_qs = IngredientsUserNeeds.objects.all().filter(user=user, count_have=0)
-            if needs_qs.exists():
-                needs_obj = needs_qs.first()
-                qs = qs.exclude(id__in=[obj.id for obj in needs_obj.drinks.all()])
+            print('ATLEAST ONE')
 
-        if order:
-            query = '''
-                select *, count_total-count_have as count_need, round(cast(count_have as decimal) / count_total, 2) as percent
-                from (select
-                    cd.name,
-                    cd.id as drink_id,
-                    count(*) filter (where ci.name in (
-                      select ci.name
-                      from cocktail_ingredient as ci
-                      join cocktail_ingredient_user as ciu on ci.id=ciu.ingredient_id
-                      where ciu.user_id=21
-                    )) as count_have,
-                    count(*) as count_total
-                  from cocktail_drink as cd
-                  join cocktail_drink_ingredients as cdi on cd.id=cdi.drink_id
-                  join cocktail_ingredient as ci on ci.id=cdi.ingredient_id
-                  group by cd.name, cd.id) as ss
-            '''
-
-            if order == 'timestamp':
-                qs = qs.order_by('-timestamp').distinct()
-            elif user.is_authenticated() and order == 'count_need':
-                qs = sorted(qs.distinct(),
-                                   key= lambda obj:
-                                   obj.ingredients.all().count() -
-                                   obj.ingredientsuserneeds_set
-                                   .all()
-                                   .filter(user=user)
-                                   .first()
-                                   .count_have
-                                   )
-
-            elif user.is_authenticated() and order == 'count_have':
-                qs = sorted(qs.distinct(),
-                                   key= lambda obj:
-                                   obj.ingredientsuserneeds_set
-                                   .all()
-                                   .filter(user=user)
-                                   .first()
-                                   .count_have,
-                                    reverse=True
-                                   )
-            elif user.is_authenticated() and order == 'percent':
-                qs = sorted(qs.distinct(),
-                                   key= lambda obj:
-                                   obj.ingredientsuserneeds_set
-                                   .all()
-                                   .filter(user=user)
-                                   .first()
-                                   .count_have/obj.ingredients.all().count(),
-                                    reverse=True
-                                   )
+        # if order:
+        #     query = '''
+        #                 SELECT *, count_total-count_have AS count_need, ROUND(cast(count_have as DECIMAL) / count_total, 2) AS percent
+        #                 FROM (SELECT
+        #                     cd.name,
+        #                     cd.id AS drink_id,
+        #                     COUNT(*) filter (WHERE ci.name IN (
+        #                       SELECT ci.name
+        #                       FROM cocktail_ingredient AS ci
+        #                       JOIN cocktail_ingredient_user AS ciu ON ci.id=ciu.ingredient_id
+        #                       WHERE ciu.user_id=21S
+        #                     )) AS count_have,
+        #                     count(*) AS count_total
+        #                   FROM cocktail_drink AS cd
+        #                   JOIN cocktail_drink_ingredients AS cdi ON cd.id=cdi.drink_id
+        #                   JOIN cocktail_ingredient AS ci ON ci.id=cdi.ingredient_id
+        #                   GROUP BA cd.name, cd.id) AS ss
+        #                 ORDER BY percent DESC, count_total DESC, drink_id DESC
+        #             '''
+        #
+        #     if order == 'timestamp':
+        #         qs = qs.order_by('-timestamp').distinct()
+        #     elif user.is_authenticated() and order == 'count_need':
+        #         qs1 = qs.raw(query)
+        #         print('count_need')
+        #
+        #
+        #     elif user.is_authenticated() and order == 'count_have':
+        #         print('count_have')
+        #         pass
+        #
+        #     elif user.is_authenticated() and order == 'percent':
+        #         print('count_percent')
+        #         qs = qs.raw(query)
+        #         pass
+        # data = list(qs.values())
         return qs

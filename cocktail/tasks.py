@@ -16,50 +16,13 @@ from .models import (
     Amount,
     Layer,
     Playlist,
-    IngredientsUserNeeds
+    # IngredientsUserNeeds
 )
 
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-def update_single_drink(user, drink_obj):
-    user_qs = user.ingredient_set.all()
-    ing_qs = drink_obj.ingredients.all()
-    count_have = (user_qs & ing_qs).count()
-    # Remove Previous Ones
-    temp = IngredientsUserNeeds.objects.filter(
-        user=user,
-        drinks=drink_obj
-    )
-    for obj in temp:
-        if count_have != obj.count_have:
-            obj.drinks.remove(drink_obj)
-
-    # Create Count Obj
-    obj, created = IngredientsUserNeeds.objects.get_or_create(
-        user=user,
-        count_have=count_have
-    )
-    if created:
-        obj.save()
-
-    obj.drinks.add(drink_obj)
-
-
-@task(name='update_counts')
-def update_drink_counts(user, ingredient=None):
-    qs = Drink.objects.all()
-    if ingredient:
-        qs = qs.filter(ingredients=ingredient)
-    for drink_obj in qs:
-        update_single_drink(user, drink_obj)
-
-@task(name='update_all_drinks')
-def update_all_drinks():
-    for user in User.objects.all():
-        update_drink_counts(user)
-    print('Finished')
 
 @task(name="process_videos")
 def process_youtube_videos():
@@ -118,9 +81,6 @@ def process_youtube_videos():
                                             )
                         ingred_amount_obj.save()
                         drink.ingredients.add(ingredient_obj)
-
-                for user in User.objects.all():
-                    update_single_drink(user, drink)
 
             drink.playlist.add(playlist_obj)
 
