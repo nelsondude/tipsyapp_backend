@@ -14,36 +14,41 @@ def dictfetchall(cursor):
 def print_json(recipe):
     print(json.dumps(recipe, sort_keys=True, indent=4, separators=(',', ': ')))
 
-def getDrinks(order):
+def getDrinks(order, userId=-1):
+    sqlOrder = [userId, 'timestamp DESC', 'DESC']
     if order == 'percent':
-        sqlOrder = 'order by percent desc, count_total desc, drink_id desc'
+        sqlOrder = [userId, 'percent DESC', 'DESC']
     elif order == 'count_have':
-        sqlOrder = 'order by count_have desc, count_total, drink_id desc'
+        sqlOrder = [userId, 'count_have DESC', '']
     elif order == 'count_need':
-        sqlOrder = 'order by count_need, count_total desc, drink_id desc'
+        sqlOrder = [userId, 'count_need', 'DESC']
+
+    qs = """
+          SELECT name, count_have, count_total, slug, thumbnail FROM
+            (SELECT DISTINCT *, count_total-count_have AS count_need, ROUND(cast(count_have as DECIMAL) / count_total, 2) AS percent
+              FROM (SELECT
+                  cd.timestamp,
+                  cd.thumbnail,
+                  cd.name,
+                  cd.slug,
+                  cd.id AS drink_id,
+                  COUNT(*) filter (WHERE ci.name IN (
+                    SELECT ci.name
+                    FROM cocktail_ingredient AS ci
+                    JOIN cocktail_ingredient_user AS ciu ON ci.id=ciu.ingredient_id
+                    WHERE ciu.user_id=%s
+                  )) AS count_have,
+                  count(*) AS count_total
+                FROM cocktail_drink AS cd
+                JOIN cocktail_drink_ingredients AS cdi ON cd.id=cdi.drink_id
+                JOIN cocktail_ingredient AS ci ON ci.id=cdi.ingredient_id
+                GROUP BY cd.name, cd.id) AS ss
+              ORDER BY %s, count_total %s, drink_id DESC
+              LIMIT 10) AS sss
+        """ % tuple(sqlOrder)
 
     with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT DISTINCT *, count_total-count_have AS count_need, ROUND(cast(count_have as DECIMAL) / count_total, 2) AS percent
-            FROM (SELECT
-                cd.name,
-                cd.id AS drink_id,
-                COUNT(*) filter (WHERE ci.name IN (
-                  SELECT ci.name
-                  FROM cocktail_ingredient AS ci
-                  JOIN cocktail_ingredient_user AS ciu ON ci.id=ciu.ingredient_id
-                  WHERE ciu.user_id=21
-                )) AS count_have,
-                count(*) AS count_total
-              FROM cocktail_drink AS cd
-              JOIN cocktail_drink_ingredients AS cdi ON cd.id=cdi.drink_id
-              JOIN cocktail_ingredient AS ci ON ci.id=cdi.ingredient_id
-              GROUP BY cd.name, cd.id) AS ss
-            order by percent desc, count_total desc, drink_id desc
-            LIMIT 2
-        """)
+        cursor.execute(qs)
         rows = dictfetchall(cursor)
 
-    # print_json(rows)
-    print(rows)
     return rows

@@ -281,12 +281,12 @@ def get_all_videos_in_playlist(playlist, nextPageToken=None, videos=None):
     # Prevent Playlists from fetching data if no new videos have been added
     count = data['pageInfo']['totalResults']
     qs = Playlist.objects.all().filter(playlist_id=playlist['id'])
-    if qs.exists() and qs.count() == 1 and videos == []:
-        obj = qs.first()
-        qs_count = obj.webpage_urls.all().count()
-        print(qs_count, count)
-        if qs_count == count:
-            return videos
+    # if qs.exists() and qs.count() == 1 and videos == []:
+    #     obj = qs.first()
+    #     qs_count = obj.webpage_urls.all().count()
+    #     print(qs_count, count)
+    #     if qs_count == count:
+    #         return videos
 
     # Recursive function to go through all pages until the end
     nextPageToken = data.get('nextPageToken')
@@ -310,6 +310,8 @@ def get_all_videos_in_playlist(playlist, nextPageToken=None, videos=None):
             except:
                 thumbnail = ""
 
+        if published_at.startswith('2018'):
+            print(published_at)
         data = {
             'webpage_url': youtube_link,
             'thumbnail': thumbnail,

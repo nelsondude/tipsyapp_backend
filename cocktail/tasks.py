@@ -31,13 +31,15 @@ def process_youtube_videos():
     # entries = get_all_videos_in_playlist(playlists[1])
     entries = save_all_channel_links()
     for i in range(len(entries)):
-        print(i*100/len(entries))
         entry_dict = entries[i]
         url                  = entry_dict.get("webpage_url")
         thumbnail            = entry_dict.get("thumbnail")
         playlist             = entry_dict.get("playlist")
         description          = entry_dict.get("description")
         upload               = dateutil.parser.parse(entry_dict.get("upload"))
+
+        t = upload.strftime('%m/%d/%Y')
+        print(t)
 
         webpage_obj, created = WebpageURL.objects.get_or_create(
             webpage_url=url,
