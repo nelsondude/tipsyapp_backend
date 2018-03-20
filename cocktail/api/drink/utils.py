@@ -44,7 +44,7 @@ def getDrinks(order, userId=-1):
                 JOIN cocktail_ingredient AS ci ON ci.id=cdi.ingredient_id
                 GROUP BY cd.name, cd.id) AS ss
               ORDER BY %s, count_total %s, drink_id DESC
-              LIMIT 10) AS sss
+              LIMIT 16) AS sss
         """ % tuple(sqlOrder)
 
     with connection.cursor() as cursor:
