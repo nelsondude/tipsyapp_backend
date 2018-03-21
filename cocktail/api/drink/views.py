@@ -10,13 +10,16 @@ from rest_framework.response import Response
 import json
 from .utils import getDrinks
 
+from django.db.models import Count
+
+
 
 
 from cocktail.api.pagination import (
     LargeResultsSetPagination,
     StandardResultsSetPagination
 )
-from cocktail.models import Drink, Playlist
+from cocktail.models import Drink, Playlist, Ingredient
 from .serializers import (
     DrinkListModelSerializer,
     DrinkDetailModelSerializer,
@@ -95,6 +98,11 @@ class DrinkListAPIView(APIView):
 
         # if user.is_authenticated() and atLeastOne:
         #     print('ATLEAST ONE')
+
+        user_ings = Ingredient.objects.filter(user=user)
+        # totals_qs = Drink.objects.annotate(count_total=Count('ingredients'))
+        # count_have = Drink.objects.filter(ingredients__in=user_ings).annotate(count_have=Count('ingredients'))
+
 
         if order and user.is_authenticated():
             rows = getDrinks(order, user.id)
