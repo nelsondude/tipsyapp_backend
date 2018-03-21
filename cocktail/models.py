@@ -45,7 +45,7 @@ class Playlist(models.Model):
 
 class Ingredient(models.Model):
     name                = models.CharField(max_length = 1000)
-    ingredient_category = models.ForeignKey(Category, null=True, blank=True)
+    ingredient_category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.CASCADE)
     slug                = models.SlugField(max_length=255, unique=True)
     user                = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True)
 
@@ -66,7 +66,7 @@ class Ingredient(models.Model):
 
 class Drink(models.Model):
     name                = models.CharField(max_length = 1000, null=True, blank=True)
-    webpage_url         = models.ForeignKey(WebpageURL, null=True, blank=True)
+    webpage_url         = models.ForeignKey(WebpageURL, null=True, blank=True, on_delete=models.CASCADE)
     thumbnail           = models.URLField(null=True, blank=True)
     ingredients         = models.ManyToManyField(Ingredient, blank=True)
     slug                = models.SlugField(max_length=255, unique=True)
@@ -90,7 +90,7 @@ class Drink(models.Model):
 
 class Layer(models.Model):
     layer = models.CharField(max_length=1000)
-    drink = models.ForeignKey(Drink, blank=True, null=True)
+    drink = models.ForeignKey(Drink, blank=True, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.layer
@@ -98,8 +98,8 @@ class Layer(models.Model):
 
 class Amount(models.Model):
     amount              = models.CharField(max_length = 1000, null=True, blank=True)
-    ingredient          = models.ForeignKey(Ingredient)
-    layer               = models.ForeignKey(Layer, null=True, blank=True)
+    ingredient          = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    layer               = models.ForeignKey(Layer, null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return str(self.layer.layer)+' | '+str(self.amount) + " | " + str(self.ingredient)

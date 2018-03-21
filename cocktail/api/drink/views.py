@@ -10,7 +10,7 @@ from rest_framework.response import Response
 import json
 from .utils import getDrinks
 
-from django.db.models import Count
+from django.db.models import Count, Q
 
 
 
@@ -100,8 +100,10 @@ class DrinkListAPIView(APIView):
         #     print('ATLEAST ONE')
 
         user_ings = Ingredient.objects.filter(user=user)
-        # totals_qs = Drink.objects.annotate(count_total=Count('ingredients'))
-        # count_have = Drink.objects.filter(ingredients__in=user_ings).annotate(count_have=Count('ingredients'))
+        total = Count('ingredients')
+        count_have = Count('ingredients', filter=Q(ingredients__in=user_ings))
+        qs = Drink.objects.annotate(count_total=total).annotate(count_have=count_have)
+
 
 
         if order and user.is_authenticated():

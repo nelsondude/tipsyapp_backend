@@ -12,6 +12,7 @@ from .views import (
     IngredientDetailAPIView
     )
 
+app_name='cocktail'
 
 urlpatterns = [
     url(r'^$', IngredientListAPIView.as_view(), name='list'),

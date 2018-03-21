@@ -10,6 +10,7 @@ from .views import (
     WebpageURLListAPIView,
     )
 
+app_name='cocktail'
 
 urlpatterns = [
     url(r'^$', WebpageURLListAPIView.as_view(), name='list'),

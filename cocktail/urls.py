@@ -14,6 +14,7 @@ from .views import (
     delete_all_view,
     )
 
+app_name="cocktail"
 
 urlpatterns = [
     # url(r'^list/$', DrinkListView.as_view(), name='drink'),

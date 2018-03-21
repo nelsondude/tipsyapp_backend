@@ -52,3 +52,22 @@ def getDrinks(order, userId=-1):
         rows = dictfetchall(cursor)
 
     return rows
+
+
+
+# ########################################
+from django.db.models import Count, Q
+from cocktail.models import Ingredient, Drink
+
+
+def getCountedDrinks(user):
+    user_ings = Ingredient.objects.filter(user=user)
+    total = Count('ingredients')
+    count_have = Count('ingredients', filter = Q(ingredients__in=user_ings))
+    count_need = Count('ingredients', filter = ~Q(ingredients__in=user_ings))
+    qs = (Drink.objects
+        .annotate(count_total=total)
+        .annotate(count_have=count_have)
+        .annotate(count_need=count_need))
+
+    return qs

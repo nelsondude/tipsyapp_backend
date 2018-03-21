@@ -7,6 +7,7 @@ from .views import (
     UpdateDatabaseAPIView,
     )
 
+app_name="cocktail"
 
 urlpatterns = [
     url(r'^$', DrinkListAPIView.as_view(), name='list'),

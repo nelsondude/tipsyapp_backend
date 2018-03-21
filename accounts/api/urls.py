@@ -6,6 +6,8 @@ from rest_framework_jwt.views import obtain_jwt_token
 
 from .views import RegisterAPIView, LoginAPIView, UserAPIView
 
+app_name="accounts"
+
 urlpatterns = [
     url(r'^register/$', RegisterAPIView.as_view(), name='register'),
     url(r'^login/token/', obtain_jwt_token),
