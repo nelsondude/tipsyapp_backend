@@ -56,7 +56,8 @@ def getDrinks(order, userId=-1):
 
 
 # ########################################
-from django.db.models import Count, Q
+from django.db.models import Count, Q, FloatField
+from django.db.models.functions import Cast
 from cocktail.models import Ingredient, Drink
 
 
@@ -67,11 +68,12 @@ def getCountedDrinks(queryset, user=None):
         user_ings = Ingredient.objects.filter(user__id=-1)
 
     total = Count('ingredients')
-    count_have = Count('ingredients', filter = Q(ingredients__in=user_ings))
+    count_have = Cast(Count('ingredients', filter = Q(ingredients__in=user_ings)), FloatField())
     count_need = Count('ingredients', filter = ~Q(ingredients__in=user_ings))
     qs = (queryset
         .annotate(count_total=total)
         .annotate(count_have=count_have)
-        .annotate(count_need=count_need))
+        .annotate(count_need=count_need)
+        .annotate(percent=Cast(count_have/total, FloatField())))
 
     return qs

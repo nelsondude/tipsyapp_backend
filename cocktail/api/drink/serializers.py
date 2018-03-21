@@ -117,6 +117,7 @@ class DrinkListModelSerializer(serializers.ModelSerializer):
     count_need = serializers.IntegerField()
     count_have = serializers.IntegerField()
     count_total = serializers.IntegerField()
+    percent = serializers.FloatField()
 
     class Meta:
         model = Drink
@@ -127,6 +128,7 @@ class DrinkListModelSerializer(serializers.ModelSerializer):
             'count_need',
             'count_have',
             'count_total',
+            'percent',
             'slug',
             'timestamp'
         ]

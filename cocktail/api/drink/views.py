@@ -82,6 +82,7 @@ class DrinkListAPIView(ListAPIView):
 
         qs = Drink.objects.all()
 
+
         if query:
             qs = qs.filter(name__icontains=query)
         elif filters:
@@ -90,24 +91,22 @@ class DrinkListAPIView(ListAPIView):
                 qs = qs | Drink.objects.filter(
                     playlist__name__iexact=filter)
 
+        # users drinks in side menu when AUTHENTICATED
         elif user.is_authenticated and userQuery:
             qs = qs.filter(user=user)
 
-
+        # users drinks in side menu when NOT AUTHENTICATED
         if not user.is_authenticated and userQuery:
             qs = Drink.objects.none()
-
-        print('USER IS ', user)
-        # if user.is_authenticated and atLeastOne:
-        #     print('ATLEAST ONE')
 
         if not user.is_authenticated:
             user = None
 
+        # Default ordering of drinks
         if not order:
             order = '-timestamp'
 
         qs = getCountedDrinks(qs, user )
-        qs = qs.order_by(order)
+        qs = qs.order_by('-' + order, '-count_total', '-timestamp')
             
         return qs
