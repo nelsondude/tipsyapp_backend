@@ -55,15 +55,12 @@ class DrinkDetailAPIView(UpdateModelMixin, RetrieveAPIView):
         changeUser = self.request.GET.get('changeUser')
         user = self.request.user
         print(changeUser, user)
-        if user.is_authenticated:
-            qs = User.objects.filter(username=user.username)
-            if qs.exists() and qs.count() == 1 and changeUser:
-                user_obj = qs.first()
-                if obj.user.all().filter(username=user_obj.username).exists():
-                    obj.user.remove(user_obj)
-                else:
-                    obj.user.add(user_obj)
-                obj.save()
+        if user.is_authenticated and changeUser:
+            if obj.user.filter(id=user.id).exists():
+                obj.user.remove(user)
+            else:
+                obj.user.add(user)
+            obj.save()
         return obj
 
 class DrinkListAPIView(ListAPIView):
@@ -82,14 +79,11 @@ class DrinkListAPIView(ListAPIView):
 
         qs = Drink.objects.all()
 
-
+        # limit results based on search and playlist
         if query:
             qs = qs.filter(name__icontains=query)
-        elif filters:
-            qs = qs.filter(playlist__name__iexact=filters[0])
-            for filter in filters[1:]:
-                qs = qs | Drink.objects.filter(
-                    playlist__name__iexact=filter)
+        if filters:
+            qs = qs.filter(playlist__name__in=filters)
 
         # users drinks in side menu when AUTHENTICATED
         elif user.is_authenticated and userQuery:
@@ -103,10 +97,11 @@ class DrinkListAPIView(ListAPIView):
             user = None
 
         # Default ordering of drinks
-        if not order:
-            order = '-timestamp'
 
         qs = getCountedDrinks(qs, user )
-        qs = qs.order_by('-' + order, '-count_total', '-timestamp')
+        if order:
+            qs = qs.order_by('-' + order, '-count_total', '-timestamp')
+        else:
+            qs = qs.order_by('-timestamp')
             
         return qs
