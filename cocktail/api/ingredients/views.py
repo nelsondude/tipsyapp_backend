@@ -43,13 +43,13 @@ class IngredientListAPIView(ListAPIView):
         if query:
             qs = Ingredient.objects.filter(name__icontains=query)
         elif suggested:
-            if user.is_authenticated():
+            if user.is_authenticated:
                 qs = Ingredient.objects.exclude(user=user).annotate(num_drinks=Count('drink')) \
                  .order_by('-num_drinks')[:15]
             else:
                 qs = Ingredient.objects.annotate(num_drinks=Count('drink')) \
                  .order_by('-num_drinks')[:15]
-        elif user.is_authenticated():
+        elif user.is_authenticated:
             qs = Ingredient.objects.filter(user=user).order_by('name')
         else:
             qs = Ingredient.objects.none()

@@ -52,8 +52,8 @@ class AmountModelSerializer(serializers.ModelSerializer):
 
     def get_need_it(self, obj):
         user = self.context['request'].user
-        if user.is_authenticated():
-            qs = Ingredient.objects.all().filter(user=user, slug=obj.ingredient.slug)
+        if user.is_authenticated:
+            qs = Ingredient.objects.filter(user=user, slug=obj.ingredient.slug)
             return not qs.exists()
         return True
 
@@ -93,7 +93,7 @@ class DrinkDetailModelSerializer(serializers.ModelSerializer):
         ]
     def get_have_it(self, obj):
         user = self.context['request'].user
-        if user.is_authenticated():
+        if user.is_authenticated:
             return Drink.objects.all().filter(id=obj.id, user=user).exists()
         return False
 
@@ -113,9 +113,10 @@ class DrinkDetailModelSerializer(serializers.ModelSerializer):
 
 class DrinkListModelSerializer(serializers.ModelSerializer):
     url = drink_detail_url
-    count_need = serializers.SerializerMethodField()
-    count_have = serializers.SerializerMethodField()
-    count_total = serializers.SerializerMethodField()
+
+    count_need = serializers.IntegerField()
+    count_have = serializers.IntegerField()
+    count_total = serializers.IntegerField()
 
     class Meta:
         model = Drink
@@ -127,12 +128,5 @@ class DrinkListModelSerializer(serializers.ModelSerializer):
             'count_have',
             'count_total',
             'slug',
+            'timestamp'
         ]
-    def get_count_need(self, obj):
-        return 0
-
-    def get_count_have(self, obj):
-        return 0
-
-    def get_count_total(self, obj):
-        return obj.ingredients.all().count()
