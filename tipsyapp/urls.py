@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -23,5 +23,6 @@ urlpatterns = [
     url(r'^api/drink/',         include('cocktail.api.drink.urls',          namespace="api-drink")),
     url(r'^api/webpage_url/',   include('cocktail.api.webpage_url.urls',    namespace="api-webpage_url")),
     url(r'^api/accounts/',      include('accounts.api.urls',                namespace="api-accounts")),
-    url(r'^.*', TemplateView.as_view(template_name="ang_home.html"), name='index')
+    url(r'^.*', RedirectView.as_view(url='/api/drink/', permanent=False), name='redirect' )
+    # url(r'^.*', TemplateView.as_view(template_name="ang_home.html"), name='index')
 ]
