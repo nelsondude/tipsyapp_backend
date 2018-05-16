@@ -25,9 +25,10 @@ from cocktail.tasks import process_youtube_videos
 User = get_user_model()
 
 class UpdateDatabaseAPIView(APIView):
-    permission_classes = (IsAdminUser,)
+    permission_classes = [AllowAny]
+
     def get(self, request, *args, **kwargs):
-        process_youtube_videos.delay()
+        process_youtube_videos()
         return Response({'updating': True}, status=200)
 
 

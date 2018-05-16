@@ -28,7 +28,7 @@ from celery.schedules import crontab
 app.conf.beat_schedule = {
     'add-every-midnight-contrab': {
         'task': 'process_videos',
-        'schedule': crontab(minute=0, hour='6, 18'),
+        'schedule': crontab(minute=0, hour='6,18'),
         'args': (),
     },
 }

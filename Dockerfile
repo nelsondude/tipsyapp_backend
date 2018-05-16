@@ -12,10 +12,10 @@ RUN pip install -r requirements.txt
 RUN python -m nltk.downloader book
 RUN pkill -f "beat"
 RUN pkill -f "worker"
+RUN apt-get update
+RUN apt-get install nano
 
 
 ADD . $BACKEND_DIR
-
-#ENTRYPOINT celery -A tipsyapp worker
 
 CMD python manage.py runserver 0.0.0.0:8000

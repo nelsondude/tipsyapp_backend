@@ -27,11 +27,11 @@ def get_channel_from_name(name):
 
     url = "https://www.googleapis.com/youtube/v3/channels"
     data = get_json(url, values)
-    ids = []
-    for item in data['items']:
-        id = item['id']
-        ids.append(id)
-    return ids
+    item = data['items'][0]
+    id = item['id']
+    uploaded = item['contentDetails']['relatedPlaylists']['uploads']
+
+    return (id, uploaded)
 
 
 def get_playlists_from_channel(id, nextPageToken=None, playlists=None):
@@ -81,12 +81,12 @@ def get_all_videos_in_playlist(playlist, nextPageToken=None, videos=None):
     # Prevent Playlists from fetching data if no new videos have been added
     count = data['pageInfo']['totalResults']
     qs = Playlist.objects.all().filter(playlist_id=playlist['id'])
-    if qs.exists() and qs.count() == 1 and videos == []:
+    if qs.count() == 1 and videos == []:
         obj = qs.first()
         qs_count = obj.webpage_urls.all().count()
-        # print(qs_count, count)
-        # if qs_count == count:
-        #     return videos
+        print(qs_count, count)
+        if qs_count == count:
+            return videos
 
     # Recursive function to go through all pages until the end
     nextPageToken = data.get('nextPageToken')
@@ -126,11 +126,17 @@ def get_all_videos_in_playlist(playlist, nextPageToken=None, videos=None):
 
 
 def save_all_channel_links():
-    channel_id = get_channel_from_name('TipsyBartender')[0]
+    channel_id, uploaded = get_channel_from_name('TipsyBartender')
     playlists = get_playlists_from_channel(channel_id)
+    playlists.append({
+        'id': uploaded,
+        'title': 'Uploaded',
+        'default_thumbnail': 'https://cdn1.iconfinder.com/data/icons/web-items/24/143-256.png'
+    })
+
     result = []
     for playlist in playlists:
-        print("NEW PLAYLIST")
+        print("Playlist: %s" % playlist['title'])
         videos = get_all_videos_in_playlist(playlist)
         result.extend(videos)
     return result
