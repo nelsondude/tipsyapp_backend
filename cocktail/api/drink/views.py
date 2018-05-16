@@ -3,15 +3,9 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.mixins import UpdateModelMixin
 from rest_framework.permissions import IsAdminUser
-from rest_framework.renderers import JSONRenderer
 from django.contrib.auth import get_user_model
-from django.core import serializers
 from rest_framework.response import Response
-import json
-from .utils import getDrinks, getCountedDrinks
-
-from django.db.models import Count, Q
-
+from .utils import getCountedDrinks
 
 
 
@@ -19,7 +13,7 @@ from cocktail.api.pagination import (
     LargeResultsSetPagination,
     StandardResultsSetPagination
 )
-from cocktail.models import Drink, Playlist, Ingredient
+from cocktail.models import Drink, Playlist
 from .serializers import (
     DrinkListModelSerializer,
     DrinkDetailModelSerializer,

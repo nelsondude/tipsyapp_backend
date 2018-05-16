@@ -84,9 +84,9 @@ def get_all_videos_in_playlist(playlist, nextPageToken=None, videos=None):
     if qs.exists() and qs.count() == 1 and videos == []:
         obj = qs.first()
         qs_count = obj.webpage_urls.all().count()
-        print(qs_count, count)
-        if qs_count == count:
-            return videos
+        # print(qs_count, count)
+        # if qs_count == count:
+        #     return videos
 
     # Recursive function to go through all pages until the end
     nextPageToken = data.get('nextPageToken')

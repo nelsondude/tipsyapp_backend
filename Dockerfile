@@ -1,20 +1,21 @@
 # Use an official Python runtime as a parent image
 FROM python:3.6.5-slim-jessie
+ENV PYTHONUNBUFFERED 1
 
-# Set the working directory to /app
-WORKDIR /app
+ENV BACKEND_DIR /app/
+RUN mkdir -p $BACKEND_DIR
+WORKDIR $BACKEND_DIR
 
-# Copy the current directory contents into the container at /app
-ADD . /app
+ADD requirements.txt $BACKEND_DIR
+RUN pip install -r requirements.txt
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+RUN python -m nltk.downloader book
+RUN pkill -f "beat"
+RUN pkill -f "worker"
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
 
-# Define environment variable
-ENV NAME World
+ADD . $BACKEND_DIR
 
-# Run app.py when the container launches
-CMD python manage.py runserver 80
+#ENTRYPOINT celery -A tipsyapp worker
+
+CMD python manage.py runserver 0.0.0.0:8000
