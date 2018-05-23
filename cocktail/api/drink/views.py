@@ -2,11 +2,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework.mixins import UpdateModelMixin
-from rest_framework.permissions import IsAdminUser
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from .utils import getCountedDrinks
-
 
 
 from cocktail.api.pagination import (
@@ -28,7 +26,7 @@ class UpdateDatabaseAPIView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
-        process_youtube_videos()
+        process_youtube_videos.delay()
         return Response({'updating': True}, status=200)
 
 
