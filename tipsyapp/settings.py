@@ -117,9 +117,7 @@ DATABASES = {
         # 'HOST': 'atnelson-db.cagjwavte34n.us-east-1.rds.amazonaws.com',
         # 'PORT': '5432',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'HOST': 'db',
+        'NAME': 'tipsyapp_db',
         'PORT': 5432,
     }
 }

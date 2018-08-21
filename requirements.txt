@@ -6,7 +6,7 @@ celery==4.0.2
 certifi==2017.4.17
 cffi==1.10.0
 chardet==3.0.4
-cryptography==2.0.2
+cryptography
 defusedxml==0.5.0
 dj-database-url==0.4.1
 Django==2.0.3
@@ -27,7 +27,7 @@ kombu==4.1.0
 langid==1.1.6
 Markdown==2.6.8
 nltk==3.2.4
-numpy==1.13.1
+numpy
 oauth2client==4.1.2
 oauthlib==2.0.2
 psycopg2==2.7.4
