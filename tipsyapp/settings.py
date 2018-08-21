@@ -116,7 +116,10 @@ DATABASES = {
 }
 
 # Change 'default' database configuration with $DATABASE_URL.
-DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=False))
+try:
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=500, ssl_require=False))
+except:
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=500, require_ssl=False))
 
 
 
