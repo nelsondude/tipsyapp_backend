@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import dj_database_url
 import datetime
+import django_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -108,14 +109,6 @@ WSGI_APPLICATION = 'tipsyapp.wsgi.application'
 
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # 'NAME': 'tipsyapp',
-        # 'USER': 'atnelson',
-        # 'PASSWORD': 'Buddy1009',
-        # 'HOST': 'atnelson-db.cagjwavte34n.us-east-1.rds.amazonaws.com',
-        # 'PORT': '5432',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'tipsyapp_db',
         'PORT': 5432,
@@ -175,7 +168,7 @@ STATICFILES_DIRS = [
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 CELERY_BROKER_URL = 'redis://redis:6379/0'
@@ -237,3 +230,6 @@ AUTH0 = {
         }
     },
 }
+
+django_heroku.settings(locals())
+
