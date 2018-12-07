@@ -1,53 +1,22 @@
-# Heroku Django Starter Template
+# Tipsyapp
 
-An utterly fantastic project starter template for Django 1.11.
+This angular 5 web app parses recipes from the "Tispy Bartender" and allows users to input ingredients they have at home to see which of his drinks they can make.
 
-## Features
+## Installation
+1. `mkdir tipsyapp`  
+2. `cd tipsyapp`  
+3. `git clone https://github.com/nelsondude/tipsyapp_backend.git`  
+4. `git clone https://github.com/nelsondude/tipsyapp_client.git`  
+5. `cd tipsyapp_client  && npm install`  
+6. `ng build --prod --output-path ../tipsyapp_backend/tipsyapp/static/ang/ --output-hashing none`  
+7. `cd ../tipsyapp_backend`  
+8. `python3 install pipenv`  
+9. `pipenv shell`  
+10. `pip install -r requirements.txt`  
+11. `python manage.py runserver`
 
-- Production-ready configuration for Static Files, Database Settings, Gunicorn, etc.
-- Enhancements to Django's static file serving functionality via WhiteNoise.
-- Latest Python 3.6 runtime environment. 
-
-## How to Use
-
-To use this project, follow these steps:
-
-1. Create your working environment.
-2. Install Django (`$ pip install django`)
-3. Create a new project using this template
-
-## Creating Your Project
-
-Using this template to create a new Django app is easy::
-
-    $ django-admin.py startproject --template=https://github.com/heroku/heroku-django-template/archive/master.zip --name=Procfile helloworld
-
-(If this doesn't work on windows, replace `django-admin.py` with `django-admin`)
-
-You can replace ``helloworld`` with your desired project name.
-
-## Deployment to Heroku
-
-    $ git init
-    $ git add -A
-    $ git commit -m "Initial commit"
-
-    $ heroku create
-    $ git push heroku master
-
-    $ heroku run python manage.py migrate
-
-See also, a [ready-made application](https://github.com/heroku/python-getting-started), ready to deploy.
-
-## Using Python 2.7?
-
-Just update `runtime.txt` to `python-2.7.13` (no trailing spaces or newlines!).
-
-
-## License: MIT
-
-## Further Reading
-
-- [Gunicorn](https://warehouse.python.org/project/gunicorn/)
-- [WhiteNoise](https://warehouse.python.org/project/whitenoise/)
-- [dj-database-url](https://warehouse.python.org/project/dj-database-url/)
+## Deployment
+1. `ng build --prod --output-path ../tipsyapp_backend/tipsyapp/static/ang/ --output-hashing none`
+2. `cd ../tipsyapp_backend`
+3. `git add . && git commit -m "Message here"`
+4. `git push origin master`  - master push triggers heroku build
