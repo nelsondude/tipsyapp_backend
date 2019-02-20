@@ -237,5 +237,8 @@ AUTH0 = {
     },
 }
 
+if os.getenv('PRODUCTION', 0):
+    SECURE_SSL_REDIRECT = True
+
 django_heroku.settings(locals())
 
