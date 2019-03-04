@@ -129,7 +129,7 @@ bh_unicode_properties.cache
 GitHub.sublime-settings
 
 .idea
-*.pem
+# *.pem
 
 # Frontend ignore stuff
 # See http://help.github.com/ignore-files/ for more about ignoring files.
