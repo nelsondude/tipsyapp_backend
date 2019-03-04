@@ -1,0 +1,29 @@
+<div class="video-container">
+  <iframe [src]="embedUrl | safe: 'resourceUrl'"  frameborder="0" allowfullscreen></iframe>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="video-buttons">
+
+      <button mat-raised-button
+              [color]="saveButton[0] ? 'primary' : 'warn'"
+              type="button"
+              (click)="saveDrink()">{{saveButton[1]}}</button>
+
+      <button *ngIf="!showDescription" color="default" (click)="showDescription=!showDescription" mat-raised-button>Show Description</button>
+      <button *ngIf="showDescription" color="warn" (click)="showDescription=!showDescription" mat-raised-button>Hide Description</button>
+
+      <rating class="pull-right" [(ngModel)]="rate" [max]="max" [readonly]="isReadonly"></rating>
+    </div>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-sm-12">
+    <p *ngIf="showDescription" style="white-space: pre; text-align: left;">
+      {{description}}
+    </p>
+  </div>
+</div>
+

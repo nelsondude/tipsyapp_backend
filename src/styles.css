@@ -1,0 +1,46 @@
+/* You can add global styles to this file, and also import other style files */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Avenir Next", serif;
+  color: black;
+  /*margin-bottom: 60px;*/
+  /*background-image: url('https://s-media-cache-ak0.pinimg.com/originals/e6/6d/c3/e66dc3e85ce1b79afa9fe042fb9dd822.png');*/
+  /*background-color: green;*/
+  background-repeat: no-repeat;
+  background-position: 30% 60%;
+  background-size: 500px auto;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  height: 60px;
+  width: 100%;
+}
+
+.navbar-default .navbar-toggle {
+  color: #337ab7;
+  border-color: transparent;
+  margin: 4px 5px;
+}
+
+.navbar {
+  margin-bottom: 0;
+  border-radius: 0;
+}
+
+.recipe-can {
+  color: green;
+}
+
+.recipe-close {
+  color: orange;
+}
+
+.recipe-cant {
+  color: red;
+}

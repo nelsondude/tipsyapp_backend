@@ -1,0 +1,38 @@
+<nav class="navbar navbar-inverse navbar-static-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button"
+              class="navbar-toggle collapsed pull-left"
+              (click)="toggleDrinks()">
+        <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+      </button>
+      <button type="button"
+              class="navbar-toggle collapsed"
+              (click)="toggleState()">
+        <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+      </button>
+      <a class="navbar-brand" routerLink="/" style="cursor: pointer;">
+        Tipsy App
+      </a>
+    </div>
+
+    <div class="collapse navbar-collapse" [ngClass]="{ 'in': isIn }">
+      <ul class="nav navbar-nav">
+        <li><a href="https://www.youtube.com/user/TipsyBartender" target="_blank">Tipsy Youtube Channel</a></li>
+      </ul>
+      <form (ngSubmit)="onSubmit(f)" #f="ngForm" class="navbar-form navbar-left">
+        <div class="form-group">
+          <input ngModel name="search" type="text" class="form-control" placeholder="Search Drinks">
+        </div>
+      </form>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a routerLink="/about">About</a></li>
+        <li><a routerLink="/contact">Contact</a></li>
+        <li><a style="cursor: pointer;" *ngIf="auth.isAuthenticated()" (click)="auth.logout()">Log Out</a></li>
+        <li><a style="cursor: pointer;" *ngIf="!auth.isAuthenticated()" (click)="auth.login()">Log In</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<router-outlet> </router-outlet>

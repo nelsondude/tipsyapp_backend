@@ -1,0 +1,25 @@
+<h4>Most Common</h4>
+<div *ngFor="let item of suggestedIngredients; let i = index">
+  <div class="row">
+    <div class="col-sm-12">
+      <small>
+        {{item.name | truncate : 25}}
+        <b>
+          (+{{item.number_drinks}})
+        </b>
+      </small>
+      <a (click)="addIngredient(i)" style="cursor: pointer;" *ngIf="auth.isAuthenticated()">
+        <mat-checkbox
+          class="example-margin pull-right"
+          [checked]="checked"
+          [indeterminate]="indeterminate"
+          [align]="align">
+        </mat-checkbox>
+      </a>
+    </div>
+  </div>
+</div>
+
+
+
+

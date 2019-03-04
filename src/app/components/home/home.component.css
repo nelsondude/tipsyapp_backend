@@ -1,0 +1,13 @@
+#section1 {
+  background-attachment: fixed;
+  background-position: 50% 60%;
+  background-image: url('https://s-media-cache-ak0.pinimg.com/originals/e6/6d/c3/e66dc3e85ce1b79afa9fe042fb9dd822.png');
+  background-repeat: no-repeat;
+  background-size: 300px auto;
+}
+
+
+
+.scrolling-content {
+  overflow: auto;
+}

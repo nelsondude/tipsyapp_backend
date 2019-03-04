@@ -1,0 +1,7 @@
+  <ul class="list-group">
+    <li *ngFor="let item of myIngredients; let i = index" class="list-group-item">{{item.name}} <b>(+{{item.number_drinks}})</b>
+      <a class="pull-right" style="cursor: pointer;" (click)="removeItem(i)">
+        <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
+      </a>
+    </li>
+  </ul>

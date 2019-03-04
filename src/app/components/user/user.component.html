@@ -1,0 +1,16 @@
+<tabset [justified]="true" *ngIf="auth.isAuthenticated(); else anonymous">
+  <tab heading="Ingredients" [active]="ingredientActive">
+    <app-my-ingredients></app-my-ingredients>
+
+  </tab>
+  <tab heading="Drinks" [active]="drinkActive">
+    <app-my-drinks></app-my-drinks>
+
+  </tab>
+</tabset>
+<ng-template #anonymous>
+  <h4 align="center" class="text-muted">Login to View User Bar</h4>
+</ng-template>
+
+
+

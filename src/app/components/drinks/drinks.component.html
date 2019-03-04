@@ -1,0 +1,113 @@
+<div class="row">
+  <div class="col-xs-12">
+    <mat-progress-bar
+      style="margin-bottom: 10px;"
+      [color]="color"
+      [mode]="mode"
+      [value]="value"
+      [bufferValue]="bufferValue">
+    </mat-progress-bar>
+  </div>
+</div>
+
+<div class="row" style="background-color: rgba(255,255,255,0.3);" *ngIf="auth.isAuthenticated()">
+  <div id="drink-buttons" >
+    <div>
+      <div class="btn-group"
+           dropdown
+           [autoClose]="false"
+           [(isOpen)]="isOpen">
+        <button class="headerBtn" dropdownToggle mat-raised-button>Drink Filters <span class="caret"></span></button>
+        <ul *dropdownMenu class="dropdown-menu pre-scrollable" role="menu">
+          <div class="checkbox" *ngFor="let item of playlistData; let i = index">
+            <li role="menuitem">
+              <label>
+                <input type="checkbox"
+                       style="display: inline-block;"
+                       btnCheckbox
+                       btnCheckboxTrue="1"
+                       btnCheckboxFalse="0"
+                       (click)="onClickCheckbox($event, i)"
+                >{{item.name}}
+              </label>
+            </li>
+          </div>
+        </ul>
+      </div>
+
+      <mat-slide-toggle
+        style="margin-left: 10px; margin-top: 10px;"
+        (change)="onClickApply()"
+        [color]="color"
+        [(ngModel)]="applied">
+        <span *ngIf="applied; else notApplied">
+          Applied
+        </span>
+        <ng-template #notApplied>
+          <span>
+            Apply
+          </span>
+        </ng-template>
+      </mat-slide-toggle>
+    </div>
+
+    <mat-menu #appMenu="matMenu">
+      <button *ngFor="let item of options; let i = index" mat-menu-item (click)="menuOptionClicked(i)">{{item.name}}</button>
+    </mat-menu>
+    <button mat-raised-button [matMenuTriggerFor]="appMenu" class="pull-right headerBtn" style="max-height: 38px;">
+      {{options[index].name}} <span class="caret"></span>
+    </button>
+  </div>
+</div>
+
+<div class="row" align="center" *ngIf="!auth.isAuthenticated()">
+  <div class="col-xs-12">
+    <h3>Welcome To the Tipsy App!</h3>
+    <br>
+    <h5>Add your bar ingredients to the left, and we tell you which Tipsy Bartender drinks you can make! Its that <b>ridiculously</b> easy</h5>
+    <br>
+    <h5>Order the results by number of <b>ingredients you're missing</b>, number of <b>ingredients you need</b>, percent of <b>ingredients you have,</b> or by <b>date published</b></h5>
+    <br>
+    <hr>
+
+    <h4>(<a (click)="auth.login()" style="cursor: pointer;">Login</a> to add Ingredients and Save Drinks)</h4>
+  </div>
+</div>
+
+<br>
+
+
+<div class="row" *ngIf="noResults">
+  <div class='col-xs-12 text-center'>
+    <h1>No Drinks Found. Try another search.</h1>
+  </div>
+</div>
+
+<div class="row" *ngFor="let group of drinksDataGroups; let groupNum = index">
+  <div class="col-md-3" *ngFor="let item of group; let i = index">
+    <a style="cursor: pointer; text-align: center;" (click)="loadVideo(item)">
+      <mat-card
+        [ngClass]="{
+        'recipe-cant': item.count_need > 3,
+        'recipe-close': item.count_need > 0,
+        'recipe-can': item.count_need == 0
+        }">
+        <img mat-card-image [src]="item.thumbnail">
+        <mat-card-content>
+          <h4 *ngIf="auth.isAuthenticated()">Have <b>{{item.count_have}}</b> out of <b>{{item.count_total}}</b> ingredients!!</h4>
+          <h3>{{item.name}}</h3>
+        </mat-card-content>
+      </mat-card>
+    </a>
+  </div>
+  <div class="col-xs-12">
+    <hr>
+  </div>
+</div>
+
+<div class="row" *ngIf="drinksData.length > 0 && drinksData[drinksData.length-1].next">
+  <div class="col-xs-12" align="center" style="height: 58px;">
+    <button mat-raised-button [disabled]="extraLoading || lastResult" (click)="loadMoreResults()">Load More</button>
+    <!-- <img *ngIf="extraLoading" src="assets/200w_d.gif" /> -->
+  </div>
+</div>

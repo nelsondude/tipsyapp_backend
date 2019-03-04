@@ -1,0 +1,10 @@
+<ul class="list-group">
+  <li *ngFor="let item of myDrinks; let i = index" class="list-group-item">
+    <a style="cursor: pointer;" (click)="loadDrink(i)">
+      {{item.name | truncate : 20}}
+    </a>
+    <a class="pull-right" style="cursor: pointer;" (click)="removeItem(i)">
+      <span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
+    </a>
+  </li>
+</ul>

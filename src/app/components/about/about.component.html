@@ -1,0 +1,42 @@
+<div class="container">
+  <div class="row" style="padding-bottom: 50px">
+    <div class="col-sm-12">
+      <ng-adsense></ng-adsense>
+
+      <h1>About</h1>
+      <p>
+        This application runs off of the <a href="https://www.youtube.com/user/TipsyBartender" target="_blank">Tipsy Bartender's Youtube Page</a>. He makes the drinks and the Tipsy App tells you which of his drink you can make. Enter the ingredients you have at your home bar in the sidebar, and the Tipsy App will look through all Tipsy Bartender Recipes giving you detailed information on what you have and what you need. This makes it <b>ridiculously</b> easy to know which TipsyBartender Drinks you can make right now! Try it out today.
+      </p>
+
+      <h4 align="center" style="padding: 45px 0;">
+        <b>
+          Spend Time Making, Not Looking...
+        </b>
+      </h4>
+      <h2>How It Works</h2><br>
+
+      <h5>Recipe Detection:</h5>
+      <p>
+        This website goes through all of the videos on the <a href="https://www.youtube.com/user/TipsyBartender" target="_blank">Tipsy Bartender's Youtube Page</a> to fetch the drink recipes. By looking at each videos description, the Tipsy App implements a recipe detection algorithm that scores a chunk of text based on how likely it is to be a recipe. It looks at number of keywords and number of banned words, or words that would never be in a recipe. If that score is high enough, then it is deemed a recipe.
+      </p>
+      <br>
+      <h5>Ingredient Detection:</h5>
+      <p>
+        Parsing all of the correct information from a recipe was a challenging task. First, Tipsy App will look for indicators of a new Drink and set the title of that drink. Then, it will start parsing lines of ingredients to seperate their amounts from the actual ingredient names. It then uses the NYTimes recipe ingredient parser to separate adjectives from their ingredient counterparts. After this is all done, the ingredients are stored in various layers of each Drink. Normally a drink has only one layer with no title, but some drinks have say a "Red" layer or a "Chocolate" layer which had to be accounted for. That way, a new layer won't be recognized as its own drink, but as part of the previous drink detected.
+      </p>
+      <br>
+      <h5>Authentication:</h5>
+      <p>
+        The authentication system used in the Tipsy App is fairly simple. It is registered with <a href="www.auth0.com">auth0.com</a> and uses auth0's authentication system to log people in. Once someone has created an account, auth0 sends back a response containing a Json Web Token which is stored in local storage. Whenever a user makes a request to the api, the token is sent as the Authorization header, creating a new user in the database if necessary. Then, all subsequent requests to the API are now authenticated requests.
+      </p>
+      <br>
+      <h5>Technologies Used:</h5>
+      <ul>
+        <li *ngFor="let technology of technologies">
+          {{technology}}
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</div>

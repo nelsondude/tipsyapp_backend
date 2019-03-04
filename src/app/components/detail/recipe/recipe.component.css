@@ -1,0 +1,14 @@
+.jumbotron {
+  color: black;
+  background-color: rgba(255,255,255, 0.5);
+}
+
+.have-it {
+  background-color: green;
+  color: white;
+}
+
+.need-it {
+  background-color: red;
+  color: white;
+}

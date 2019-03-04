@@ -1,0 +1,26 @@
+<div class="row">
+  <div class="col-sm-12">
+    <div *ngIf="drinkData">
+      <button mat-raised-button routerLink="" class="visible-lg-block visible-md-block">Back</button>
+      <hr class="visible-lg-block visible-md-block">
+      <h2 *ngIf="drinkData">
+        <b>{{drinkData.name}}</b>
+      </h2>
+      <mat-chip-list class="mat-chip-list-stacked" *ngFor="let layer of drinkData.layers">
+        <br *ngIf="layer.name">
+        <h4 *ngIf="layer.name">{{layer.name}}</h4>
+          <mat-chip *ngFor="let ingredient of layer.ingredients"
+                   selected="true"
+                   [color]="ingredient.need_it ? 'warn': 'primary'">
+            {{ingredient.amount}} {{ingredient.name}}
+          </mat-chip>
+      </mat-chip-list>
+      <br>
+      <span *ngFor="let playlist of drinkData.playlists">
+        {{playlist}},
+      </span>
+    </div>
+  </div>
+</div>
+
+
