@@ -9,7 +9,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "postinstall": "ng build --output-path ./tipsyapp/static/ang/"
+    "postinstall": "ng build --prod --output-path ./tipsyapp/static/ang/ --output-hashing none"
   },
   "private": true,
   "dependencies": {
