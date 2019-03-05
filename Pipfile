@@ -57,6 +57,7 @@ Markdown = "==2.6.8"
 PyJWT = "==1.5.2"
 "rest_framework_auth0" = "==0.4.5"
 django-heroku = "*"
+django-webpack-loader = "*"
 
 [dev-packages]
 

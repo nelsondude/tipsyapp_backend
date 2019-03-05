@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.mixins import UpdateModelMixin
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
-from .utils import getCountedDrinks
+from .utils import get_counted_drinks
 
 
 from cocktail.api.pagination import (
@@ -21,6 +21,7 @@ from .serializers import (
 from cocktail.tasks import process_youtube_videos
 
 User = get_user_model()
+
 
 class UpdateDatabaseAPIView(APIView):
     permission_classes = [AllowAny]
@@ -55,6 +56,7 @@ class DrinkDetailAPIView(UpdateModelMixin, RetrieveAPIView):
                 obj.user.add(user)
             obj.save()
         return obj
+
 
 class DrinkListAPIView(ListAPIView):
 
@@ -91,7 +93,7 @@ class DrinkListAPIView(ListAPIView):
 
         # Default ordering of drinks
 
-        qs = getCountedDrinks(qs, user )
+        qs = get_counted_drinks(qs, user)
         if order:
             qs = qs.order_by('-' + order, '-count_total', '-timestamp')
         else:

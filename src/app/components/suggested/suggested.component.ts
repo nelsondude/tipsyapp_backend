@@ -40,6 +40,7 @@ export class SuggestedComponent implements OnInit {
       .subscribe(
         () => {
           this.ingredientsService.ingredientChanged.emit(true);
+          console.log('got here');
           this.loading = -1;
         }
       );

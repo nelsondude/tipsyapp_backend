@@ -22,6 +22,7 @@ drink_detail_url = HyperlinkedIdentityField(
         lookup_field='slug'
         )
 
+
 class PlaylistModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Playlist
@@ -29,7 +30,8 @@ class PlaylistModelSerializer(serializers.ModelSerializer):
             'name',
         ]
 
-class WebpageURLMdelSerializer(serializers.ModelSerializer):
+
+class WebpageURLModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = WebpageURL
         fields = [
@@ -37,9 +39,11 @@ class WebpageURLMdelSerializer(serializers.ModelSerializer):
             'description'
         ]
 
+
 class AmountModelSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     need_it = serializers.SerializerMethodField()
+
     class Meta:
         model = Amount
         fields = [
@@ -47,6 +51,7 @@ class AmountModelSerializer(serializers.ModelSerializer):
             'amount',
             'need_it'
         ]
+
     def get_name(self, obj):
         return obj.ingredient.name
 
@@ -57,9 +62,11 @@ class AmountModelSerializer(serializers.ModelSerializer):
             return not qs.exists()
         return True
 
+
 class LayerModelSerializer(serializers.ModelSerializer):
-    ingredients = AmountModelSerializer(many=True, source='amount_set')
+    ingredients = serializers.SerializerMethodField()
     name = serializers.CharField(source='layer')
+
     class Meta:
         model = Layer
         fields = [
@@ -67,11 +74,16 @@ class LayerModelSerializer(serializers.ModelSerializer):
             'ingredients'
         ]
 
+    def get_ingredients(self, instance):
+        ingredients = instance.amount_set.all().order_by('id')
+        return AmountModelSerializer(ingredients, many=True, context=self.context).data
+
+
 class DrinkDetailModelSerializer(serializers.ModelSerializer):
     embed_url = serializers.SerializerMethodField()
     url = drink_detail_url
     playlists = serializers.SerializerMethodField()
-    webpage_url = WebpageURLMdelSerializer()
+    webpage_url = WebpageURLModelSerializer()
     layers = LayerModelSerializer(many=True, source='layer_set')
     timestamp = serializers.DateTimeField(format="%b %d, %Y")
 
@@ -91,6 +103,7 @@ class DrinkDetailModelSerializer(serializers.ModelSerializer):
             'layers',
             'have_it'
         ]
+
     def get_have_it(self, obj):
         user = self.context['request'].user
         if user.is_authenticated:
@@ -108,7 +121,6 @@ class DrinkDetailModelSerializer(serializers.ModelSerializer):
         embed = urlparse.parse_qs(urlparse.urlparse(url).query).get('v')[0]
         pre = "https://www.youtube.com/embed/"
         return pre + embed
-
 
 
 class DrinkListModelSerializer(serializers.ModelSerializer):

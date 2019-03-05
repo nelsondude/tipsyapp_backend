@@ -18,11 +18,6 @@ const appRoutes: Routes = [
         canActivate: [],
     },
     {
-        path: 'contact',
-        component: ContactComponent,
-        canActivate: [],
-    },
-    {
         path: 'about',
         component: AboutComponent,
         canActivate: [],

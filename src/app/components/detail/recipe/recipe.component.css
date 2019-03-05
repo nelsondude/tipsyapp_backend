@@ -12,3 +12,7 @@
   background-color: red;
   color: white;
 }
+
+mat-chip {
+  margin-bottom: 5px;
+}

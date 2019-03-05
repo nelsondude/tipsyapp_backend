@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # 'django.contrib.sites',
     'django.contrib.messages',
     # Disable Django's own staticfiles handling in favour of WhiteNoise, for
+    # Disable Django's own staticfiles handling in favour of WhiteNoise, for
     # greater consistency between gunicorn and `./manage.py runserver`. See:
     # http://whitenoise.evans.io/en/stable/django.html#using-whitenoise-in-development
 

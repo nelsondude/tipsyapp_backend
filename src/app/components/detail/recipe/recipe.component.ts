@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {DrinksService} from '../../../_services/drinks.service';
+import {IngredientsService} from "../../../_services/ingredients.service";
 
 @Component({
   selector: 'app-recipe',
