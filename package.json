@@ -27,7 +27,7 @@
     "@angular/platform-server": "^5.2.9",
     "@angular/router": "^5.2.9",
     "@ngui/auto-complete": "^0.13.4",
-    "auth0-js": "9.3.0",
+    "auth0-js": "9.13.2",
     "body-parser": "^1.18.2",
     "bootstrap": "^3.3.7",
     "core-js": "^2.4.1",
